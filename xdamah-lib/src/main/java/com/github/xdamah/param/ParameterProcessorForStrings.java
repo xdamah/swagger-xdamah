@@ -7,8 +7,8 @@ import com.github.xdamah.controller.DamahController;
 
 public class ParameterProcessorForStrings extends BaseParameterProcessor {
 
-	public ParameterProcessorForStrings(String path, DamahController magicController) {
-		super(path, magicController);
+	public ParameterProcessorForStrings(String path, DamahController damahController) {
+		super(path, damahController);
 	}
 
 	protected Object returnAndUse(String operationParameterName, String src)

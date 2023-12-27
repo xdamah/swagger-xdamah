@@ -18,10 +18,10 @@ public class ParameterProcessorForWrapperBean extends BaseParameterProcessor{
 	private Object paramWrapperBean;
 	private Map<String, Type> propertyTypesMap;
 	private ConversionService conversionService;
-	public ParameterProcessorForWrapperBean(String path, DamahController magicController, Object paramWrapperBean,
+	public ParameterProcessorForWrapperBean(String path, DamahController damahController, Object paramWrapperBean,
 			ConversionService conversionService,
 			Map<String, Type> propertyTypesMap) {
-		super(path, magicController);
+		super(path, damahController);
 		this.paramWrapperBean=paramWrapperBean;
 		this.conversionService=conversionService;
 		this.propertyTypesMap=propertyTypesMap;

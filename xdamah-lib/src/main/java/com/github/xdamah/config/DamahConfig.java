@@ -215,22 +215,22 @@ public class DamahConfig {
 		RequestMappingInfo requestMappingInfo = builder.build();
 		
 		
-		DamahController magicController = new DamahController();
-		magicController.setOpenApi(this.openApi);
-		magicController.setPath(path);
-		magicController.setHttpMethod(httpMethod);
+		DamahController damahController = new DamahController();
+		damahController.setOpenApi(this.openApi);
+		damahController.setPath(path);
+		damahController.setHttpMethod(httpMethod);
 		
-		magicController.setOperation(operation);
-		magicController.setPathItem(pathItem);
-		magicController.setWebHook(isWebHook);
-		magicController.setModelPackageUtil(modelPackageUtil);
-		magicController.setContext(context);
-		magicController.setConversionService(conversionService);
-		magicController.setObjectMapper(objectMapper);
-		magicController.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
+		damahController.setOperation(operation);
+		damahController.setPathItem(pathItem);
+		damahController.setWebHook(isWebHook);
+		damahController.setModelPackageUtil(modelPackageUtil);
+		damahController.setContext(context);
+		damahController.setConversionService(conversionService);
+		damahController.setObjectMapper(objectMapper);
+		damahController.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
 		
 
-		requestMappingHandlerMapping.registerMapping(requestMappingInfo, magicController, this.handlerMethod);
+		requestMappingHandlerMapping.registerMapping(requestMappingInfo, damahController, this.handlerMethod);
 		
 	}
 	

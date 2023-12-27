@@ -21,16 +21,16 @@ public abstract class BaseParameterProcessor {
 	
 	
 	
-	public BaseParameterProcessor(String path, DamahController magicController) {
+	public BaseParameterProcessor(String path, DamahController damahController) {
 		super();
 		
 		this.path = path;
-		this.magicController=magicController;
+		this.damahController=damahController;
 		
 	}
 	
 	private String path; 
-	private  DamahController magicController; 
+	private  DamahController damahController; 
 	
 
 	
@@ -41,7 +41,7 @@ public abstract class BaseParameterProcessor {
 		String ref = operationParameter.get$ref();
 		if(ref!=null)
 		{
-			operationParameter=this.magicController.getFromRef(ref);
+			operationParameter=this.damahController.getFromRef(ref);
 			if(operationParameter==null)
 			{
 				//already logged warning

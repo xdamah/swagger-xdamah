@@ -755,14 +755,14 @@ Map<String, Object> extensions = operation.getExtensions();
 		if(extensions!=null)
 		{
 			Object typeNameAsObj = extensions.get("x-damah-param-ref");
-			Object xmagicParamType = extensions.get("x-damah-param-type");
+			Object xDamahParamType = extensions.get("x-damah-param-type");
 			if(typeNameAsObj!=null )
 			{
 				typename=(String) typeNameAsObj;
 			}
-			else if(xmagicParamType!=null)
+			else if(xDamahParamType!=null)
 			{
-				typename=(String) xmagicParamType;
+				typename=(String) xDamahParamType;
 			}
 			else
 			{
