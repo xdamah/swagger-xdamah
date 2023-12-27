@@ -24,7 +24,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.github.xdamah.magic.controller.DamahController;
+import com.github.xdamah.controller.DamahController;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;

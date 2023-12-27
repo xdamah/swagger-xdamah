@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
-import com.github.xdamah.magic.controller.DamahController;
+import com.github.xdamah.controller.DamahController;
 
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.CookieParameter;

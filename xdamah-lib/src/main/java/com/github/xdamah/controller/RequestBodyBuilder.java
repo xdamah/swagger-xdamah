@@ -1,4 +1,4 @@
-package com.github.xdamah.magic.controller;
+package com.github.xdamah.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.xdamah.config.ModelPackageUtil;
-import com.github.xdamah.magic.controller.DamahController.StreamReaderToTarget;
+import com.github.xdamah.controller.DamahController.StreamReaderToTarget;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;

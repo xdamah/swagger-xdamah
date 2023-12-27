@@ -3,7 +3,7 @@ package com.github.xdamah.param;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import com.github.xdamah.magic.controller.DamahController;
+import com.github.xdamah.controller.DamahController;
 
 public class ParameterProcessorForStrings extends BaseParameterProcessor {
 

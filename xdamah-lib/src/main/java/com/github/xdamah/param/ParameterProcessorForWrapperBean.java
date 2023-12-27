@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 
-import com.github.xdamah.magic.controller.DamahController;
+import com.github.xdamah.controller.DamahController;
 import com.github.xdamah.util.MyPropertyUtils;
 
 public class ParameterProcessorForWrapperBean extends BaseParameterProcessor{

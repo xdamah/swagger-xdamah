@@ -1,4 +1,4 @@
-package com.github.xdamah.magic.controller;
+package com.github.xdamah.controller;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;

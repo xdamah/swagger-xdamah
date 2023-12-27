@@ -1,4 +1,4 @@
-package com.github.xdamah.magic.controller;
+package com.github.xdamah.controller;
 
 import java.util.List;
 
