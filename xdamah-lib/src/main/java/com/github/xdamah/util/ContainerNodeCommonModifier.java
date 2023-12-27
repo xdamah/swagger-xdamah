@@ -87,10 +87,10 @@ public class ContainerNodeCommonModifier {
 		if(pathMethodNmae!=null)
 		{
 			if(containerNode.has("operationId")
-					&& (containerNode.has("x-magic")||
-							containerNode.has("x-magic-param-ref")||
-							containerNode.has("x-magic-param-type")||
-							containerNode.has("x-magic-service")))
+					&& (containerNode.has("x-damah")||
+							containerNode.has("x-damah-param-ref")||
+							containerNode.has("x-damah-param-type")||
+							containerNode.has("x-damah-service")))
 			{
 				//defintely an operation and subject to our rules
 				if(containerNode.has("$ref"))
@@ -112,12 +112,12 @@ public class ContainerNodeCommonModifier {
 								if(theTarget!=null)
 								{
 								theTarget=theTarget.deepCopy();
-								((ObjectNode) theTarget).remove("x-magic-param-type");
+								((ObjectNode) theTarget).remove("x-damah-param-type");
 								((ObjectNode) containerNode).remove("$ref");
 								ContainerNode replacement = new NodeMerger(jsonMapper).merge(containerNode, theTarget);
-								if(containerNode.has("x-magic-param-ref"))
+								if(containerNode.has("x-damah-param-ref"))
 								{
-									((ObjectNode) theTarget).set("x-magic-param-ref", containerNode.get("x-magic-param-ref"));
+									((ObjectNode) theTarget).set("x-damah-param-ref", containerNode.get("x-damah-param-ref"));
 								}
 								String up = up(path);
 								ContainerNode parent = pathContainerNodeMap.get(up);

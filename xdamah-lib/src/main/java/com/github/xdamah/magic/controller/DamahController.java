@@ -490,7 +490,7 @@ Map<String, Object> extensions = operation.getExtensions();
 		
 		if(extensions!=null)
 		{
-			String serviceInfo = (String) extensions.get("x-magic-service");
+			String serviceInfo = (String) extensions.get("x-damah-service");
 			if(serviceInfo!=null)
 			{
 				serviceInfo=serviceInfo.trim();
@@ -754,8 +754,8 @@ Map<String, Object> extensions = operation.getExtensions();
 		Map<String, Object> extensions = operation.getExtensions();
 		if(extensions!=null)
 		{
-			Object typeNameAsObj = extensions.get("x-magic-param-ref");
-			Object xmagicParamType = extensions.get("x-magic-param-type");
+			Object typeNameAsObj = extensions.get("x-damah-param-ref");
+			Object xmagicParamType = extensions.get("x-damah-param-type");
 			if(typeNameAsObj!=null )
 			{
 				typename=(String) typeNameAsObj;

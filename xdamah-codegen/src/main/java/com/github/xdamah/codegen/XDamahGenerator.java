@@ -145,7 +145,7 @@ public class XDamahGenerator extends DefaultGenerator {
 			if(parameters2!=null && parameters2.size()>1)
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xmagicParamRef = extensions.get("x-magic-param-ref");//just the type name
+				Object xmagicParamRef = extensions.get("x-damah-param-ref");//just the type name
 				if(xmagicParamRef!=null && xmagicParamRef instanceof String)
 				{
 					//since this is to be a ref we dont need to create
@@ -159,14 +159,14 @@ public class XDamahGenerator extends DefaultGenerator {
 					//else typeName can be methodName+path/operationId+"Param"
 					//build the type looping through the params and add to schema
 					ObjectSchema objectSchema = new ObjectSchema();
-					objectSchema.addExtension("x-magic-created", true);
+					objectSchema.addExtension("x-damah-created", true);
 					String use=null;
 					
 					boolean nameSpecified=false;
 					if(extensions!=null)
 					{
 						
-						Object xmagicParamType = extensions.get("x-magic-param-type");
+						Object xmagicParamType = extensions.get("x-damah-param-type");
 						if(xmagicParamType!=null && xmagicParamType instanceof String)
 						{
 							use=(String) xmagicParamType;
@@ -238,7 +238,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 			if(parameters2!=null && parameters2.size()>1)
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xmagicParamRef = extensions.get("x-magic-param-ref");
+				Object xmagicParamRef = extensions.get("x-damah-param-ref");
 				if(xmagicParamRef!=null && xmagicParamRef instanceof String)
 				{
 					//since this is to be a ref we didnt need to create earlier
@@ -266,7 +266,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 									if(!schema.equals(schema2))
 									{
 										//during code generation better to break and protest
-										throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-magic-param-ref="+xmagicParamRefStr+" but actual parameters dont match the properties");
+										throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xmagicParamRefStr+" but actual parameters dont match the properties");
 									}
 								}
 							}
@@ -274,7 +274,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 							{
 								Map<String, Schema> properties = objectSchema.getProperties();
 								
-								throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-magic-param-ref="+xmagicParamRefStr+" but actual parameters dont match the properties in size");
+								throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xmagicParamRefStr+" but actual parameters dont match the properties in size");
 							}
 							
 							
@@ -282,7 +282,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 					}
 					else
 					{
-						throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-magic-param-ref="+xmagicParamRefStr+" which is not defined");
+						throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xmagicParamRefStr+" which is not defined");
 					}
 					
 				}
@@ -308,7 +308,7 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 			boolean mustCheck=false;
 			if(extensions!=null)
 			{
-				Object xmagicObj = extensions.get("x-magic");
+				Object xmagicObj = extensions.get("x-damah");
 				if(xmagicObj!=null && xmagicObj instanceof Boolean && ((Boolean)xmagicObj).booleanValue())
 				{
 					mustCheck=true;
@@ -321,25 +321,25 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 				}
 				else
 				{
-					Object xmagicParamType = extensions.get("x-magic-param-type");
+					Object xmagicParamType = extensions.get("x-damah-param-type");
 					if(xmagicParamType!=null && xmagicParamType instanceof String)
 					{
 						mustCheck=true;
 					}
 					else
 					{
-						Object xmagicParamTypeRef = extensions.get("x-magic-param-ref");
+						Object xmagicParamTypeRef = extensions.get("x-damah-param-ref");
 						if(xmagicParamTypeRef!=null && xmagicParamTypeRef instanceof String)
 						{
 							mustCheck=true;
 						}
 					}
-					Object xmagicService = extensions.get("x-magic-service");
+					Object xmagicService = extensions.get("x-damah-service");
 					if(xmagicService!=null && xmagicService instanceof String)
 					{
 						mustCheck=true;
 					}
-					//x-magic-service
+					//x-damah-service
 				}
 			}
 			
@@ -426,7 +426,7 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 			
 			if(extensions!=null)
 			{
-				Object xmagicObj = extensions.get("x-magic");
+				Object xmagicObj = extensions.get("x-damah");
 				if(xmagicObj!=null && xmagicObj instanceof Boolean && ((Boolean)xmagicObj).booleanValue())
 				{
 					ret=null;
@@ -439,25 +439,25 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 				}
 				else
 				{
-					Object xmagicParamType = extensions.get("x-magic-param-type");
+					Object xmagicParamType = extensions.get("x-damah-param-type");
 					if(xmagicParamType!=null && xmagicParamType instanceof String)
 					{
 						ret=null;
 					}
 					else
 					{
-						Object xmagicParamTypeRef = extensions.get("x-magic-param-ref");
+						Object xmagicParamTypeRef = extensions.get("x-damah-param-ref");
 						if(xmagicParamTypeRef!=null && xmagicParamTypeRef instanceof String)
 						{
 							ret=null;
 						}
 					}
-					Object xmagicService = extensions.get("x-magic-service");
+					Object xmagicService = extensions.get("x-damah-service");
 					if(xmagicService!=null && xmagicService instanceof String)
 					{
 						ret=null;
 					}
-					//x-magic-service
+					//x-damah-service
 				}
 				
 				
