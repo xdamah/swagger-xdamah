@@ -59,6 +59,10 @@
     <artifactId>jackson-dataformat-xml</artifactId>
   
 </dependency>
-
+<dependency>
+				<groupId>com.github.xdamah</groupId>
+			<artifactId>xdamah-common</artifactId>	
+			 <version>${revision}</version>
+			</dependency>
 	</dependencies>
 </project>

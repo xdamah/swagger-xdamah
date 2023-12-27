@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.github.xdamah.constants.DamahExtns;
 
 import io.swagger.v3.oas.models.PathItem.HttpMethod;
 
@@ -56,10 +57,10 @@ public class ContainerNodeModifier {
 					modify((ContainerNode) jsonNode, path+"/"+fieldName);
 				}
 			}
-			if(containerNode.has("x-damah-service"))
+			if(containerNode.has(DamahExtns.X_DAMAH_SERVICE))
 			{
-				((ObjectNode) containerNode).put("x-damah-service", "hidden");
-				//((ObjectNode) containerNode).remove("x-damah-service");
+				((ObjectNode) containerNode).put(DamahExtns.X_DAMAH_SERVICE, "hidden");
+				//((ObjectNode) containerNode).remove(DamahExtns.X_DAMAH_PARAM_SERVICE);
 			}
 			else if(containerNode.has("externalValue")&& isNonIndexPath(path))
 			{
@@ -162,10 +163,10 @@ public class ContainerNodeModifier {
 		if(pathMethodNmae!=null)
 		{
 			if(containerNode.has("operationId")
-					&& (containerNode.has("x-damah")||
-							containerNode.has("x-damah-param-ref")||
-							containerNode.has("x-damah-param-type")||
-							containerNode.has("x-damah-service")))
+					&& (containerNode.has(DamahExtns.X_DAMAH)||
+							containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)||
+							containerNode.has(DamahExtns.X_DAMAH_PARAM_TYPE)||
+							containerNode.has(DamahExtns.X_DAMAH_SERVICE)))
 			{
 				//defintely an operation and subject to our rules
 				if(containerNode.has("$ref"))
@@ -187,12 +188,12 @@ public class ContainerNodeModifier {
 								if(theTarget!=null)
 								{
 								theTarget=theTarget.deepCopy();
-								((ObjectNode) theTarget).remove("x-damah-param-type");
+								((ObjectNode) theTarget).remove(DamahExtns.X_DAMAH_PARAM_TYPE);
 								((ObjectNode) containerNode).remove("$ref");
 								ContainerNode replacement = new NodeMerger(jsonMapper).merge(containerNode, theTarget);
-								if(containerNode.has("x-damah-param-ref"))
+								if(containerNode.has(DamahExtns.X_DAMAH_PARAM_REF))
 								{
-									((ObjectNode) theTarget).set("x-damah-param-ref", containerNode.get("x-damah-param-ref"));
+									((ObjectNode) theTarget).set(DamahExtns.X_DAMAH_PARAM_REF, containerNode.get(DamahExtns.X_DAMAH_PARAM_REF));
 								}
 								String up = up(path);
 								ContainerNode parent = pathContainerNodeMap.get(up);

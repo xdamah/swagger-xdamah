@@ -39,5 +39,6 @@
   	<module>xdamah-maven-codegen-plugin</module>
   	<module>xdamah-lib</module>
 
+  	<module>xdamah-common</module>
   </modules>
 </project>

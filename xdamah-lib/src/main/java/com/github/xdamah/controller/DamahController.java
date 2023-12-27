@@ -51,6 +51,7 @@ import jakarta.servlet.http.Part;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.xdamah.config.ModelPackageUtil;
 import com.github.xdamah.constants.Constants;
+import com.github.xdamah.constants.DamahExtns;
 import com.github.xdamah.param.ClassOfSingleParam;
 import com.github.xdamah.param.ParameterProcessorForStrings;
 import com.github.xdamah.param.ParameterProcessorForWrapperBean;
@@ -490,7 +491,7 @@ Map<String, Object> extensions = operation.getExtensions();
 		
 		if(extensions!=null)
 		{
-			String serviceInfo = (String) extensions.get("x-damah-service");
+			String serviceInfo = (String) extensions.get(DamahExtns.X_DAMAH_SERVICE);
 			if(serviceInfo!=null)
 			{
 				serviceInfo=serviceInfo.trim();
@@ -754,8 +755,8 @@ Map<String, Object> extensions = operation.getExtensions();
 		Map<String, Object> extensions = operation.getExtensions();
 		if(extensions!=null)
 		{
-			Object typeNameAsObj = extensions.get("x-damah-param-ref");
-			Object xDamahParamType = extensions.get("x-damah-param-type");
+			Object typeNameAsObj = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
+			Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
 			if(typeNameAsObj!=null )
 			{
 				typename=(String) typeNameAsObj;

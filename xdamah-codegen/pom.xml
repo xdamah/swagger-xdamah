@@ -13,5 +13,10 @@
                 <artifactId>swagger-codegen-generators</artifactId>
                 <version>${swagger-codegen-generators-version}</version>
             </dependency>
+            <dependency>
+				<groupId>com.github.xdamah</groupId>
+			<artifactId>xdamah-common</artifactId>	
+			 <version>${revision}</version>
+			</dependency>
   </dependencies>
 </project>

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.xdamah.constants.DamahExtns;
 
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
@@ -145,7 +146,7 @@ public class XDamahGenerator extends DefaultGenerator {
 			if(parameters2!=null && parameters2.size()>1)
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xDamahParamRef = extensions.get("x-damah-param-ref");//just the type name
+				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);//just the type name
 				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
 				{
 					//since this is to be a ref we dont need to create
@@ -159,14 +160,14 @@ public class XDamahGenerator extends DefaultGenerator {
 					//else typeName can be methodName+path/operationId+"Param"
 					//build the type looping through the params and add to schema
 					ObjectSchema objectSchema = new ObjectSchema();
-					objectSchema.addExtension("x-damah-created", true);
+					objectSchema.addExtension(DamahExtns.X_DAMAH_CREATED, true);
 					String use=null;
 					
 					boolean nameSpecified=false;
 					if(extensions!=null)
 					{
 						
-						Object xDamahParamType = extensions.get("x-damah-param-type");
+						Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
 						if(xDamahParamType!=null && xDamahParamType instanceof String)
 						{
 							use=(String) xDamahParamType;
@@ -238,7 +239,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 			if(parameters2!=null && parameters2.size()>1)
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xDamahParamRef = extensions.get("x-damah-param-ref");
+				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
 				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
 				{
 					//since this is to be a ref we didnt need to create earlier
@@ -308,7 +309,7 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 			boolean mustCheck=false;
 			if(extensions!=null)
 			{
-				Object xDamahObj = extensions.get("x-damah");
+				Object xDamahObj = extensions.get(DamahExtns.X_DAMAH);
 				if(xDamahObj!=null && xDamahObj instanceof Boolean && ((Boolean)xDamahObj).booleanValue())
 				{
 					mustCheck=true;
@@ -321,20 +322,20 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 				}
 				else
 				{
-					Object xDamahParamType = extensions.get("x-damah-param-type");
+					Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
 					if(xDamahParamType!=null && xDamahParamType instanceof String)
 					{
 						mustCheck=true;
 					}
 					else
 					{
-						Object xDamahParamTypeRef = extensions.get("x-damah-param-ref");
+						Object xDamahParamTypeRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
 						if(xDamahParamTypeRef!=null && xDamahParamTypeRef instanceof String)
 						{
 							mustCheck=true;
 						}
 					}
-					Object xDamahService = extensions.get("x-damah-service");
+					Object xDamahService = extensions.get(DamahExtns.X_DAMAH_SERVICE);
 					if(xDamahService!=null && xDamahService instanceof String)
 					{
 						mustCheck=true;
@@ -426,7 +427,7 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 			
 			if(extensions!=null)
 			{
-				Object xDamahObj = extensions.get("x-damah");
+				Object xDamahObj = extensions.get(DamahExtns.X_DAMAH);
 				if(xDamahObj!=null && xDamahObj instanceof Boolean && ((Boolean)xDamahObj).booleanValue())
 				{
 					ret=null;
@@ -439,20 +440,20 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 				}
 				else
 				{
-					Object xDamahParamType = extensions.get("x-damah-param-type");
+					Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
 					if(xDamahParamType!=null && xDamahParamType instanceof String)
 					{
 						ret=null;
 					}
 					else
 					{
-						Object xDamahParamTypeRef = extensions.get("x-damah-param-ref");
+						Object xDamahParamTypeRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
 						if(xDamahParamTypeRef!=null && xDamahParamTypeRef instanceof String)
 						{
 							ret=null;
 						}
 					}
-					Object xDamahService = extensions.get("x-damah-service");
+					Object xDamahService = extensions.get(DamahExtns.X_DAMAH_SERVICE);
 					if(xDamahService!=null && xDamahService instanceof String)
 					{
 						ret=null;
