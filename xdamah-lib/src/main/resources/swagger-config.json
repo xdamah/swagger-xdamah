@@ -1,0 +1,8 @@
+{
+	"configUrl": "/api-docs/swagger-config",
+	"oauth2RedirectUrl": "http://localhost:8080/swagger-ui/oauth2-redirect.html",
+	"url": "/api-docs/",
+	"validatorUrl": "",
+	"showExtensions": true,
+	"showCommonExtensions": true
+}
