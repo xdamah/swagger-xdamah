@@ -597,6 +597,10 @@ Map<String, Object> extensions = operation.getExtensions();
 							Class serviceClass=Class.forName(serviceClassName);
 							Object serviceBean = context.getBean(serviceClass);
 							Method method=getActualMethod(methodName, argTypes, serviceClass, bodyArgIndex);
+							if(method==null)
+							{
+								System.err.println("Unexpected configuration- method not found ");
+							}
 							methodAndIndexes.setMethod(method);
 							methodAndIndexes.setServiceBean(serviceBean);
 						} catch (ClassNotFoundException e) {
