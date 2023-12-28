@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.github.xdamah</groupId>
-    <artifactId>xdamah-parent</artifactId>
+    <artifactId>swagger-xdamah</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>xdamah-common</artifactId>
