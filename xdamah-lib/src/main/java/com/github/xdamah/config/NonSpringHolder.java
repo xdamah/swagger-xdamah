@@ -17,7 +17,11 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class NonSpringHolder {
+	private static final Logger logger = LoggerFactory.getLogger(NonSpringHolder.class);
 
 	public static final NonSpringHolder INSTANCE = new NonSpringHolder();
 
@@ -101,8 +105,7 @@ public class NonSpringHolder {
 								readValue = this.getObjectMapper().readValue(json, JsonNode.class);
 
 							} catch (ClassNotFoundException | JsonProcessingException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error("Could not convert xml to json", e);
 							}
 						}
 						else if(type!=null)

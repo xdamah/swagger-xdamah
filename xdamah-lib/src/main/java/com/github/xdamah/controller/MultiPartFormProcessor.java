@@ -15,6 +15,8 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -31,6 +33,7 @@ import com.github.xdamah.config.ModelPackageUtil;
 import com.github.xdamah.util.MyPropertyUtils;
 
 public class MultiPartFormProcessor {
+	private static final Logger logger = LoggerFactory.getLogger(MultiPartFormProcessor.class);
 	
 	private final ModelPackageUtil modelPackageUtil;
 	private final OpenAPI openApi;
@@ -67,8 +70,7 @@ public class MultiPartFormProcessor {
 			reqBody=targetType.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Unable to instantiate", e);
 		}
 		if(reqBody!=null)
 		{
@@ -133,8 +135,7 @@ public class MultiPartFormProcessor {
 								}
 								
 							} catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error("unable to set property "+propertyName, e);
 							}
 						}
 						
@@ -200,8 +201,7 @@ public class MultiPartFormProcessor {
 							try {
 								childTargetType = Class.forName(fqn);
 							} catch (ClassNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error("class not found", e);
 							}
 							if(childTargetType!=null)
 							{
@@ -216,8 +216,7 @@ public class MultiPartFormProcessor {
 								try {
 									BeanUtils.setProperty(reqBody, propertyName, Arrays.asList(array));
 								} catch (IllegalAccessException | InvocationTargetException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									logger.error("unable to set property "+propertyName, e);
 								}
 							}
 							
@@ -259,8 +258,7 @@ public class MultiPartFormProcessor {
 											BeanUtils.setProperty(reqBody, propertyName, parameterValsList);
 											
 										} catch (IllegalAccessException | InvocationTargetException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+											logger.error("unable to set property "+propertyName, e);
 										}
 									}
 									
@@ -296,8 +294,7 @@ public class MultiPartFormProcessor {
 										BeanUtils.setProperty(reqBody, propertyName, parameterVal);
 										
 									} catch (IllegalAccessException | InvocationTargetException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+										logger.error("unable to set property "+propertyName, e);
 									}
 								
 							}
@@ -320,8 +317,7 @@ public class MultiPartFormProcessor {
 										BeanUtils.setProperty(reqBody, propertyName, converted);
 										
 									} catch (IllegalAccessException | InvocationTargetException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+										logger.error("unable to set property "+propertyName, e);
 									}
 								
 							}

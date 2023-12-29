@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 
@@ -33,7 +35,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class RequestBodyBuilder {
-	
+	private static final Logger logger = LoggerFactory.getLogger(RequestBodyBuilder.class);
 	
 	public RequestBodyBuilder(Operation operation, ModelPackageUtil modelPackageUtil, ObjectMapper objectMapper,
 			MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter, OpenAPI openApi,
@@ -170,7 +172,8 @@ public class RequestBodyBuilder {
 		{
 			Class<?> targetType=this.requestTypeInfo.getRequesType();
 
-			if(targetType!=null||(this.requestTypeInfo.getDiscriminatorPropertyName()!=null && this.requestTypeInfo.getOneOfRefs()!=null))
+			final String discriminatorPropertyName = this.requestTypeInfo.getDiscriminatorPropertyName();
+			if(targetType!=null||(discriminatorPropertyName!=null && this.requestTypeInfo.getOneOfRefs()!=null))
 			{
 				if(contentType.equals(org.springframework.http.MediaType.APPLICATION_JSON_VALUE))
 				{
@@ -179,7 +182,8 @@ public class RequestBodyBuilder {
 						if(targetType==null)
 						{
 							ObjectNode objectNode=objectMapper.readValue(isr, ObjectNode.class);
-							JsonNode discriminatorNode = objectNode.get(this.requestTypeInfo.getDiscriminatorPropertyName());
+							
+							JsonNode discriminatorNode = objectNode.get(discriminatorPropertyName);
 							if(discriminatorNode!=null && discriminatorNode instanceof TextNode)
 							{
 								TextNode discriminatorNodeText=(TextNode) discriminatorNode;
@@ -205,18 +209,17 @@ public class RequestBodyBuilder {
 										targetType = Class.forName(fqn);
 										this.requestTypeInfo.setRequesType(targetType);
 									} catch (ClassNotFoundException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+										logger.error("class not found", e);
 									}
 									if(targetType!=null)
 									{
 										String jsonAsString = objectMapper.writeValueAsString(objectNode);
 										reqBody=objectMapper.readValue(jsonAsString, targetType);
+										
 										try {
-											BeanUtils.setProperty(reqBody, this.requestTypeInfo.getDiscriminatorPropertyName(), discriminator);
+											BeanUtils.setProperty(reqBody, discriminatorPropertyName, discriminator);
 										} catch (IllegalAccessException | InvocationTargetException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+											logger.error("unable to set property "+discriminatorPropertyName, e);
 										}
 									}
 								}

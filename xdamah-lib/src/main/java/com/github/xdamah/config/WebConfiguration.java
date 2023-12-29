@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +35,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer{
+	private static final Logger logger = LoggerFactory.getLogger(WebConfiguration.class);
 	@Value("${validator.enabled:true}")
 	boolean validatorEnabled=true;
 	@Autowired
@@ -397,8 +400,7 @@ public class WebConfiguration implements WebMvcConfigurer{
 								
 							}
 						} catch (JsonProcessingException e) {
-							//log with warning but is ok to suppress
-							e.printStackTrace();
+							logger.error("json processing exception", e);
 						}
 					}
 					

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -34,6 +36,7 @@ import jakarta.servlet.Filter;
 
 @Configuration
 public class OpenApiValidationConfig {
+	private static final Logger logger = LoggerFactory.getLogger(OpenApiValidationConfig.class);
 	@Value("${validator.enabled:true}")
 	boolean validatorEnabled=true;
 	@Autowired
@@ -161,8 +164,7 @@ public class OpenApiValidationConfig {
 							 modules.add(module);
 						 }
 					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error("class not found", e);
 					}
 				 }
 				 Module[] modulesArr= new Module[modules.size()];
@@ -337,8 +339,7 @@ private ValidationErrorsWhitelist allowCustomTypes(ValidationErrorsWhitelist whi
 							
 						}
 					} catch (JsonProcessingException e) {
-						//log with warning but is ok to suppress
-						e.printStackTrace();
+						logger.error("json processing exception", e);
 					}
 				}
 				

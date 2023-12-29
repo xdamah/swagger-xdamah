@@ -14,6 +14,8 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.ByteArrayResource;
@@ -61,6 +63,7 @@ import com.github.xdamah.util.MyPropertyUtils;
 
 @RestController
 public class DamahController {
+	private static final Logger logger = LoggerFactory.getLogger(DamahController.class);
 	private final SingleParamConverter singleParamConverter= new SingleParamConverter();
 	private ModelPackageUtil modelPackageUtil;
 	
@@ -604,8 +607,7 @@ Map<String, Object> extensions = operation.getExtensions();
 							methodAndIndexes.setMethod(method);
 							methodAndIndexes.setServiceBean(serviceBean);
 						} catch (ClassNotFoundException e) {
-							//warn and log
-							e.printStackTrace();
+							logger.error("class not found", e);
 						}
 						
 					}

@@ -13,6 +13,8 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -23,7 +25,10 @@ import org.springframework.core.io.*
 ;
 
 import com.github.xdamah.config.ModelPackageUtil;
-import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
+import com.github.xdamah.util.MyPropertyUtils;
+
+public class FormProcessor {
+	private static final Logger logger = LoggerFactory.getLogger(FormProcessor.class);
 	
 	private final ModelPackageUtil modelPackageUtil;
 	private final OpenAPI openApi;
@@ -49,8 +54,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 			reqBody=targetType.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Unable to instantiate", e);
 		}
 		if(reqBody!=null)
 		{
@@ -114,8 +118,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 								}
 								
 							} catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error("unable to set property "+propertyName, e);
 							}
 						}
 						
@@ -179,8 +182,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 							try {
 								childTargetType = Class.forName(fqn);
 							} catch (ClassNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error("class not found "+fqn, e);
 							}
 							if(childTargetType!=null)
 							{
@@ -195,8 +197,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 								try {
 									BeanUtils.setProperty(reqBody, propertyName, Arrays.asList(array));
 								} catch (IllegalAccessException | InvocationTargetException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									logger.error("unable to set property "+propertyName, e);
 								}
 							}
 							
@@ -244,8 +245,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 											BeanUtils.setProperty(reqBody, propertyName, parameterValsList);
 											
 										} catch (IllegalAccessException | InvocationTargetException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+											logger.error("unable to set property "+propertyName, e);
 										}
 									}
 									
@@ -295,8 +295,7 @@ import com.github.xdamah.util.MyPropertyUtils;public class FormProcessor {
 									BeanUtils.setProperty(reqBody, propertyName, converted);
 									
 								} catch (IllegalAccessException | InvocationTargetException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									logger.error("unable to set property "+propertyName, e);
 								}
 							
 						}
