@@ -12,6 +12,8 @@ import java.util.function.BiConsumer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -61,6 +63,7 @@ import java.net.*;
 
 @Configuration
 public class OpenApiConfig {
+	private static final Logger logger = LoggerFactory.getLogger(OpenApiConfig.class);
 	
 	@Autowired
 	SwaggerController swaggerController;
@@ -76,7 +79,7 @@ public class OpenApiConfig {
 	
 		
 		
-		System.out.println("invoked openApi()");
+		logger.debug("invoked openApi()");
 		OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 		final ParseOptions options = new ParseOptions();
         options.setResolve(true);
@@ -126,7 +129,7 @@ public class OpenApiConfig {
             //parsed = extension.readLocation(location, auths, resolve);
             for (String message : parsed.getMessages()) {
                // LOGGER.info("{}: {}", extension, message);
-            	System.out.println(extension+": "+message);
+            	logger.debug(extension+": "+message);
             }
             final OpenAPI result = parsed.getOpenAPI();
             if (result != null) {
@@ -139,7 +142,7 @@ public class OpenApiConfig {
 	private void saveUsingParserJustToSeeDifference(OpenAPI openApi)
 			throws IOException, StreamWriteException, DatabindException {
 		File file = new File("result-api-docs.json");
-		System.out.println("saved in "+file.getAbsolutePath());
+		logger.debug("saved in "+file.getAbsolutePath());
 		Json.mapper().writeValue(file, openApi);
 	}
 	
@@ -199,7 +202,7 @@ public class OpenApiConfig {
 				for (HttpMethod method : methodKeySet) {
 					if(method!=null)
 					{
-						System.out.println("***Path="+path+",method="+method.name());
+						logger.debug("***Path="+path+",method="+method.name());
 						Operation operation = readOperationsMap.get(method);
 						if(operation!=null)
 						{
@@ -233,7 +236,7 @@ public class OpenApiConfig {
 																String externalValue = example.getExternalValue();
 																if(externalValue!=null)
 																{
-																	System.out.println("externalValue="+externalValue);
+																	logger.debug("externalValue="+externalValue);
 																}
 															}
 															

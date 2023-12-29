@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -21,7 +23,7 @@ import com.github.xdamah.constants.DamahExtns;
 import io.swagger.v3.oas.models.PathItem.HttpMethod;
 
 public class ContainerNodeModifier {
-	
+	private static final Logger logger = LoggerFactory.getLogger(ContainerNodeModifier.class);
 	private Map<String, ContainerNode> pathContainerNodeMap;
 	private ResourceLoader resourceLoader;
 	private ObjectMapper jsonMapper;
@@ -104,7 +106,7 @@ public class ContainerNodeModifier {
 									if(urlText.endsWith(".json")||urlText.endsWith(".xml"))
 									{
 										String text = IOUtils.toString(inputStream, Charset.defaultCharset());
-										System.out.println("typeIsString="+typeIsString);
+										logger.debug("typeIsString="+typeIsString);
 										if(typeIsString)
 										{
 											//tried changing the text conditionally didnt work to any benefit
@@ -182,7 +184,7 @@ public class ContainerNodeModifier {
 							{
 								theRefTarget=theRefTarget.replace("~0", "~");
 								theRefTarget=theRefTarget.replace("~1", "/");
-								//System.out.println("using.theRefTarget="+theRefTarget);
+								//logger.debug("using.theRefTarget="+theRefTarget);
 								ContainerNode theTarget=pathContainerNodeMap.get(theRefTarget);
 								
 								if(theTarget!=null)

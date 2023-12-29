@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +42,7 @@ import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class DamahConfig {
+	private static final Logger logger = LoggerFactory.getLogger(DamahConfig.class);
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
 	private Method handlerMethod;
 	
@@ -87,7 +90,7 @@ public class DamahConfig {
 				this.handlerMethod = method;
 			}
 		}
-		System.out.println("ok" + this.requestMappingHandlerMapping);
+		logger.debug("ok" + this.requestMappingHandlerMapping);
 		
 		Paths paths = openApi.getPaths();
 		Map<String, PathItem> webhooks = openApi.getWebhooks();
@@ -167,7 +170,7 @@ public class DamahConfig {
 			}
 			
 			HandlerMethod value = entry.getValue();
-			System.out.println("value="+value.getBeanType().getName());
+			logger.debug("value="+value.getBeanType().getName());
 			
 		}
 		if(pathInUse&& methodInUse)

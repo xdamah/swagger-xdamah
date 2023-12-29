@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.xdamah.controller.DamahController;
 
 import io.swagger.v3.oas.models.media.Schema;
@@ -19,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public abstract class BaseParameterProcessor {
 	
-	
+	private static final Logger logger = LoggerFactory.getLogger(BaseParameterProcessor.class);
 	
 	public BaseParameterProcessor(String path, DamahController damahController) {
 		super();
@@ -64,7 +67,7 @@ public abstract class BaseParameterProcessor {
 				if(operationParameter instanceof QueryParameter)
 				{
 					String[] src=request.getParameterValues(operationParameterName);
-					//System.out.println("got src="+Arrays.toString(src));
+					//logger.debug("got src="+Arrays.toString(src));
 					if(src!=null)
 					{
 						List<Object> list= Arrays.asList(src);
@@ -121,7 +124,7 @@ public abstract class BaseParameterProcessor {
 				if(operationParameter instanceof QueryParameter)
 				{
 					String src=request.getParameter(operationParameterName);
-					System.out.println("got src="+src);
+					logger.debug("got src="+src);
 					ret = returnAndUse(operationParameterName, src);
 				}
 				else if(operationParameter instanceof HeaderParameter)

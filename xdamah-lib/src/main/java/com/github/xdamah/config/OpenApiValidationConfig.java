@@ -82,7 +82,7 @@ public class OpenApiValidationConfig {
 						 boolean toStringFromCustomFound=false;
 						boolean toCustomFromStringFound=false;
 						 for (String beanName : beanNamesForType) {
-							System.out.println("---beanName="+beanName);
+							logger.debug("---beanName="+beanName);
 							Object bean = context.getBean(beanName);
 							Class<? extends Object> beanClass = bean.getClass();
 							Class<?>[] interfaces = beanClass.getInterfaces();
@@ -99,7 +99,7 @@ public class OpenApiValidationConfig {
 									Type rawType = parameterizedType.getRawType();
 									if(rawType==Converter.class)
 									{
-										System.out.println("rawType="+rawType.getTypeName()+",.class="+rawType.getClass().getName());
+										logger.debug("rawType="+rawType.getTypeName()+",.class="+rawType.getClass().getName());
 										Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 										if(actualTypeArguments!=null && actualTypeArguments.length==2)
 										{
@@ -117,7 +117,7 @@ public class OpenApiValidationConfig {
 									
 								}
 								
-								System.out.println("genericInterface="+genericInterface.getTypeName()+".class="+genericInterface.getClass().getName());
+								logger.debug("genericInterface="+genericInterface.getTypeName()+".class="+genericInterface.getClass().getName());
 							}
 							
 							
@@ -148,7 +148,7 @@ public class OpenApiValidationConfig {
 							 module.addDeserializer(c, new ConversionServiceBasedDeserializer(c, conversionService));
 							 used=true;
 						 }
-						 System.out.println("-------conversionService="+conversionService.getClass().getName());
+						 logger.debug("-------conversionService="+conversionService.getClass().getName());
 						 
 						 if(!conversionService.canConvert( c, String.class))
 						 {
@@ -180,7 +180,7 @@ public class OpenApiValidationConfig {
 			}} ;
 			
 			context.registerBean(Jackson2ObjectMapperBuilderCustomizer.class, ()->jackson2ObjectMapperBuilderCustomizer);
-			System.out.println("!!!!context="+context.getClass().getName());
+			logger.debug("!!!!context="+context.getClass().getName());
 		  
 		
 			  Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();

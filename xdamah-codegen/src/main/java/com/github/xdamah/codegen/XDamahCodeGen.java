@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
@@ -16,8 +18,9 @@ import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class XDamahCodeGen extends SpringCodegen {
-
+	private static final Logger logger = LoggerFactory.getLogger(XDamahCodeGen.class);
 public XDamahCodeGen() {
+	
 		super();
 		 //additionalProperties.remove("jackson");
 	}
@@ -44,8 +47,8 @@ public XDamahCodeGen() {
 		
 		super.processOpts();
 		
-		System.out.println("this.useBeanValidation="+this.useBeanValidation);
-		System.out.println("from.additionalProperties="+describeModels(additionalProperties));
+		logger.debug("this.useBeanValidation="+this.useBeanValidation);
+		logger.debug("from.additionalProperties="+describeModels(additionalProperties));
 	}
 	
 	protected String describeModels(Map<String, Object> models) {

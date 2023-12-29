@@ -83,7 +83,7 @@ public class RequestBodyBuilder {
 							List<Schema> oneOf = schema.getOneOf();
 							if(get$ref!=null)
 							{
-								System.out.println("get$ref="+get$ref);
+								logger.debug("get$ref="+get$ref);
 								
 								String classname=modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
 								
@@ -230,7 +230,7 @@ public class RequestBodyBuilder {
 							reqBody = objectMapper.readValue(isr, targetType);
 						}
 						
-						System.out.println("reqBody="+reqBody);
+						logger.debug("reqBody="+reqBody);
 					}
 					
 				}
@@ -274,7 +274,7 @@ public class RequestBodyBuilder {
 				}
 				
 			}
-			System.out.println("reqBody="+reqBody);
+			logger.debug("reqBody="+reqBody);
 		}
 
 		return reqBody;
@@ -288,7 +288,7 @@ public class RequestBodyBuilder {
 			try(InputStreamReader isr = new InputStreamReader(request.getInputStream());)
 			{
 				reqBody =IOUtils.toString(isr);
-				System.out.println("reqBody="+reqBody);
+				logger.debug("reqBody="+reqBody);
 			}
 			
 		}
@@ -299,7 +299,7 @@ public class RequestBodyBuilder {
 
 				//reqBody =mappingJackson2XmlHttpMessageConverter.getObjectMapper().readValue(isr, targetType); 
 				reqBody=f.read(isr, targetType);
-				System.out.println("reqBody="+reqBody);
+				logger.debug("reqBody="+reqBody);
 			}
 		}
 		return reqBody;

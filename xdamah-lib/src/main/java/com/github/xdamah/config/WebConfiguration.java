@@ -153,7 +153,7 @@ public class WebConfiguration implements WebMvcConfigurer{
 												String template = "[Path '%s'] Instance type (integer) does not match any allowed primitive type (allowed: [\"string\"])";
 												 String s
 										            = String.format(template, instance);
-												 System.out.println("s="+s);
+												 logger.debug("s="+s);
 												 if(theMessage.equals(s))
 												 {
 													 matched=true;

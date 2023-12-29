@@ -328,7 +328,7 @@ public class MultiPartFormProcessor {
 					
 				}
 				
-				System.out.println("---------propertyName="+propertyName+",type="+type);
+				logger.debug("---------propertyName="+propertyName+",type="+type);
 			}
 		}
 		

@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.xdamah.constants.DamahExtns;
 
@@ -35,6 +38,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.tags.Tag;
 
 public class XDamahGenerator extends DefaultGenerator {
+	private static final Logger logger = LoggerFactory.getLogger(XDamahGenerator.class);
 
 	@Override
 	 public Map<String, List<CodegenOperation>> processPaths(Paths paths) {
@@ -375,11 +379,11 @@ private BiConsumer<PathItem, String> enforceRequestBodyFormsAreNotInline=  (Path
 									{
 										String get$ref = schema.get$ref();
 										String type=schema.getType();
-										System.out.println("--------type="+type);
+										logger.debug("--------type="+type);
 										Map<String, Schema> properties=schema.getProperties();
 										if(properties!=null)
 										{
-											System.out.println("------properties.size()="+properties.size());
+											logger.debug("------properties.size()="+properties.size());
 										}
 										if(get$ref==null)
 										{

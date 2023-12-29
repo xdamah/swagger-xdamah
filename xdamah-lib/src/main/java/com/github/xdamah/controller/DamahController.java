@@ -155,10 +155,10 @@ public class DamahController {
 				break;
 			}
 			
-			//System.out.println("responseStatusCode="+responseStatusCode+apiResponse);
+			//logger.debug("responseStatusCode="+responseStatusCode+apiResponse);
 		}
 				
-		System.out.println("********Invoked with reqBody="+reqBody+", paramWrapperBean="+paramWrapperBean+",refOperationParameterIfThereIsASingleParameter="+refOperationParameterIfThereIsASingleParameter);
+		logger.debug("********Invoked with reqBody="+reqBody+", paramWrapperBean="+paramWrapperBean+",refOperationParameterIfThereIsASingleParameter="+refOperationParameterIfThereIsASingleParameter);
 		if(methodAndIndexes==null)
 		{
 			methodAndIndexes = getMethod(requestBodyBuilder.getTargetType(), refOperationParameterIfThereIsASingleParameter, paramClass);
@@ -477,7 +477,7 @@ public class DamahController {
 				if(get$ref!=null)
 				{
 					responseRefType=get$ref;
-					//System.out.println("get$ref="+get$ref);
+					//logger.debug("get$ref="+get$ref);
 				}
 				
 			}

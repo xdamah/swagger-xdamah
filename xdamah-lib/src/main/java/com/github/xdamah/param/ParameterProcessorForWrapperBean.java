@@ -7,13 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 
 import com.github.xdamah.controller.DamahController;
 import com.github.xdamah.util.MyPropertyUtils;
 
 public class ParameterProcessorForWrapperBean extends BaseParameterProcessor{
-	
+	private static final Logger logger = LoggerFactory.getLogger(ParameterProcessorForWrapperBean.class);
 	
 	private Object paramWrapperBean;
 	private Map<String, Type> propertyTypesMap;
@@ -33,7 +35,7 @@ public class ParameterProcessorForWrapperBean extends BaseParameterProcessor{
 			throws IllegalAccessException, InvocationTargetException {
 		if(operationParameterName.equals("x"))
 		{
-			System.out.println("here");
+			logger.debug("here");
 		}
 		Object ret=null; 
 		if(paramWrapperBean!=null && src!=null)

@@ -44,6 +44,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.xdamah.codegen.XDamahGenerator;
 
@@ -62,7 +64,7 @@ import io.swagger.codegen.v3.generators.java.SpringCodegen;
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public class XDamahCodeGenMojo extends AbstractMojo {
-
+	private static final Logger logger = LoggerFactory.getLogger(XDamahCodeGenMojo.class);
     @Parameter(name = "verbose", required = false, defaultValue = "false")
     private boolean verbose;
 
@@ -566,13 +568,13 @@ public class XDamahCodeGenMojo extends AbstractMojo {
                     		{
                     			val=((String) val).toLowerCase();
                     			val=val.equals("true")?true:false;
-                    			System.out.println("found key="+key+" with string value set it to boolean of "+val);
+                    			logger.debug("found key="+key+" with string value set it to boolean of "+val);
                     		}
                 		}
                 		else
                 		{
                 			val=false;
-                			System.out.println("found key="+key+" without val set it to boolean of false");
+                			logger.debug("found key="+key+" without val set it to boolean of false");
                 		}
                 		
                 	}
@@ -585,10 +587,14 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 
         if (configHelp) {
             for (CliOption langCliOption : config.cliOptions()) {
-                System.out.println("\t" + langCliOption.getOpt());
-                System.out.println("\t    "
-                        + langCliOption.getOptionHelp().replaceAll("\n", "\n\t    "));
-                System.out.println();
+            	 System.out.println("\t" + langCliOption.getOpt());
+                 System.out.println("\t    "
+                         + langCliOption.getOptionHelp().replaceAll("\n", "\n\t    "));
+                 System.out.println();
+                 logger.debug("\t" + langCliOption.getOpt());
+                 logger.debug("\t    "
+                         + langCliOption.getOptionHelp().replaceAll("\n", "\n\t    "));
+                 
             }
             return;
         }
@@ -664,7 +670,7 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 		for (Method method : declaredMethods) {
 			java.lang.reflect.Parameter[] parameters = method.getParameters();
 			String methodName = method.getName();
-			//System.out.println("methodNamex="+methodName+",return="+method.getReturnType());
+			//logger.debug("methodNamex="+methodName+",return="+method.getReturnType());
 			if(parameters.length==1 && (methodName.startsWith("set")) && method.getReturnType().getName().equals("void") )
 			{
 				Class<?> parameterType = method.getParameterTypes()[0];
@@ -686,7 +692,7 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 						}
 					}
 				}
-				//System.out.println("methodName="+methodName+",return="+method.getReturnType()+", parameerType="+parameterType.getName()+",key="+methodName.substring("set".length()));
+				//logger.debug("methodName="+methodName+",return="+method.getReturnType()+", parameerType="+parameterType.getName()+",key="+methodName.substring("set".length()));
 			}
 		}
 		return ret;
@@ -712,10 +718,10 @@ public class XDamahCodeGenMojo extends AbstractMojo {
     
     private Method[] getDeclaredMethods() {
 		io.swagger.codegen.v3.CodegenConfig x=(CodegenConfig) loadConfig(language, "V3");
-        System.out.println("x.getClass="+x.getClass().getName());
-System.out.println("language="+this.language);
+        logger.debug("x.getClass="+x.getClass().getName());
+logger.debug("language="+this.language);
 URL resource = this.getClass().getResource("/META-INF/services/io.swagger.codegen.v3.CodegenConfig");
-System.out.println("resource="+resource);
+logger.debug("resource="+resource);
 
 Method[] declaredMethods = x.getClass().getMethods();
 		return declaredMethods;

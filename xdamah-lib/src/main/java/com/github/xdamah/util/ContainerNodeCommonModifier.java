@@ -107,7 +107,7 @@ public class ContainerNodeCommonModifier {
 							{
 								theRefTarget=theRefTarget.replace("~0", "~");
 								theRefTarget=theRefTarget.replace("~1", "/");
-								//System.out.println("using.theRefTarget="+theRefTarget);
+								//logger.debug("using.theRefTarget="+theRefTarget);
 								ContainerNode theTarget=pathContainerNodeMap.get(theRefTarget);
 								
 								if(theTarget!=null)

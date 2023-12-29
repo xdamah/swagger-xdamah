@@ -66,7 +66,7 @@ public class MyPropertyUtils {
 			Parameter[] parameters = declaredMethod.getParameters();
 			Type[] genericParameterTypes = declaredMethod.getGenericParameterTypes();
 			Type genericReturnType = declaredMethod.getGenericReturnType();
-			//System.out.println("genericReturnType="+genericReturnType+" for "+declaredMethodName+"?"+(genericReturnType.getTypeName()));
+			//logger.debug("genericReturnType="+genericReturnType+" for "+declaredMethodName+"?"+(genericReturnType.getTypeName()));
 			if(declaredMethodName.startsWith("get") && genericParameterTypes.length==0 && !genericReturnType.getTypeName().equals("void"))
 			{
 				if(declaredMethodName.length()>3)
