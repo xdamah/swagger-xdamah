@@ -124,7 +124,7 @@ public class DamahController {
 			}
 			else
 			{
-				System.err.println("Unexpected cannotr determine the warpper type of parameters");
+				logger.error("Unexpected cannotr determine the warpper type of parameters");
 			}
 		}
 		else if(operationParameters!=null && operationParameters.size()==1)
@@ -602,7 +602,7 @@ Map<String, Object> extensions = operation.getExtensions();
 							Method method=getActualMethod(methodName, argTypes, serviceClass, bodyArgIndex);
 							if(method==null)
 							{
-								System.err.println("Unexpected configuration- method not found ");
+								logger.error("Unexpected configuration- method not found ");
 							}
 							methodAndIndexes.setMethod(method);
 							methodAndIndexes.setServiceBean(serviceBean);
@@ -831,7 +831,7 @@ Map<String, Object> extensions = operation.getExtensions();
 			//we dont want to look anywhere else for parameterrefs
 			//in controller throwing excption for such things is not desirable
 			//lets just log
-			System.err.println(ref+" does not have a matching type");
+			logger.error(ref+" does not have a matching type");
 		}
 		return ret;
 	}

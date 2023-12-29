@@ -132,16 +132,16 @@ public class OpenApiValidationConfig {
 						}
 						 if(!toStringFromCustomFound)
 							{
-								 System.err.println("Missing converter for "+c.getName()+" to String.class");
+								 logger.error("Missing converter for "+c.getName()+" to String.class");
 							}
 							if(!toCustomFromStringFound)
 							{
-								System.err.println("Missing converter for String.class to "+c.getName());
+								logger.error("Missing converter for String.class to "+c.getName());
 							}
 								
 						 if(!conversionService.canConvert(String.class, c))
 						 {
-							 System.err.println("missing converter for String.class to "+c.getName());
+							 logger.error("missing converter for String.class to "+c.getName());
 						 }
 						 else
 						 {
@@ -152,7 +152,7 @@ public class OpenApiValidationConfig {
 						 
 						 if(!conversionService.canConvert( c, String.class))
 						 {
-							 System.err.println("missing converter for "+c.getName()+" to String.class");
+							 logger.error("missing converter for "+c.getName()+" to String.class");
 						 }
 						 else
 						 {
