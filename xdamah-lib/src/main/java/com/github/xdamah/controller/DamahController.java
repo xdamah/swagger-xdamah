@@ -88,6 +88,8 @@ public class DamahController {
 	
 	public ResponseEntity handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, AssertionError, ServletException
 	{
+		logger.debug("debug handling for path="+path);
+
 		String contentType = request.getContentType();
 		
 		RequestBodyBuilder requestBodyBuilder= new RequestBodyBuilder(operation, modelPackageUtil,

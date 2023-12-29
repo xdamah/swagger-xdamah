@@ -1,4 +1,5 @@
-add a logger
+add a logger-done
+improve the log4j2 config
 
 parameters defines a  path but that path not defined in path
 
