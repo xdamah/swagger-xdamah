@@ -58,13 +58,16 @@ public class NonSpringHolder {
 	public JsonNode xmlToJsonNode(final RequestBody apiRequestBodyDefinition, 
 			String contentType, String xml) {
 		JsonNode readValue = null;
+		if(xml!=null)
+		{
+			if (apiRequestBodyDefinition != null) {
+				Content content = apiRequestBodyDefinition.getContent();
+				readValue = xmlToJsonNode(content, contentType, xml);
 
-		if (apiRequestBodyDefinition != null) {
-			Content content = apiRequestBodyDefinition.getContent();
-			readValue = xmlToJsonNode(content, contentType, xml);
+			}
 
 		}
-
+		
 		return readValue;
 	}
 	
