@@ -7,7 +7,7 @@ import com.github.xdamah.constants.Constants;
 
 @Configuration
 public class ModelPackageUtil {
-	@Value("${codegen.model.package}")
+	@Value("${xdamah.codegen.model.package}")
 	private String modelPackage;
 	
 	public String fqn(String simpleClassname)

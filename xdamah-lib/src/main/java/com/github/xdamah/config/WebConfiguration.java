@@ -36,7 +36,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer{
 	private static final Logger logger = LoggerFactory.getLogger(WebConfiguration.class);
-	@Value("${validator.enabled:true}")
+	@Value("${xdamah.validator.enabled:true}")
 	boolean validatorEnabled=true;
 	@Autowired
 	OpenAPI openApi;

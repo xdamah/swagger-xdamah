@@ -37,7 +37,7 @@ import jakarta.servlet.Filter;
 @Configuration
 public class OpenApiValidationConfig {
 	private static final Logger logger = LoggerFactory.getLogger(OpenApiValidationConfig.class);
-	@Value("${validator.enabled:true}")
+	@Value("${xdamah.validator.enabled:true}")
 	boolean validatorEnabled=true;
 	@Autowired
 	OpenAPI openApi;
