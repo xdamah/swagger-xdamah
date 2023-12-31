@@ -1,3 +1,9 @@
+add examples in polymorphism
+
+then add try3 as kitchen sink
+
+maven deploy damah
+
 add a logger-done
 improve the log4j2 config
 
