@@ -13,19 +13,17 @@ public class ConversionServiceBasedDeserializer<E> extends StdDeserializer<E> {
 	private ConversionService conversionService;
 	private Class<E> vc;
 
-    public ConversionServiceBasedDeserializer(final Class<E> vc, ConversionService conversionService) {
-        super(vc);
-        this.conversionService=conversionService;
-        this.vc=vc;
-    }
+	public ConversionServiceBasedDeserializer(final Class<E> vc, ConversionService conversionService) {
+		super(vc);
+		this.conversionService = conversionService;
+		this.vc = vc;
+	}
 
-  
-    @Override
-    public E deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
-    	String readValueAs = jp.readValueAs(String.class);
-        return this.conversionService.convert(readValueAs, this.vc);
-    }
-
-	
+	@Override
+	public E deserialize(final JsonParser jp, final DeserializationContext ctxt)
+			throws IOException, JsonProcessingException {
+		String readValueAs = jp.readValueAs(String.class);
+		return this.conversionService.convert(readValueAs, this.vc);
+	}
 
 }

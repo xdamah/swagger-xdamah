@@ -13,7 +13,7 @@ public class ParameterProcessorForStrings extends BaseParameterProcessor {
 
 	protected Object returnAndUse(String operationParameterName, String src)
 			throws IllegalAccessException, InvocationTargetException {
-		
+
 		return src;
 	}
 

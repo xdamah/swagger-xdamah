@@ -55,11 +55,9 @@ public class NonSpringHolder {
 		this.modelPackageUtil = modelPackageUtil;
 	}
 
-	public JsonNode xmlToJsonNode(final RequestBody apiRequestBodyDefinition, 
-			String contentType, String xml) {
+	public JsonNode xmlToJsonNode(final RequestBody apiRequestBodyDefinition, String contentType, String xml) {
 		JsonNode readValue = null;
-		if(xml!=null)
-		{
+		if (xml != null) {
 			if (apiRequestBodyDefinition != null) {
 				Content content = apiRequestBodyDefinition.getContent();
 				readValue = xmlToJsonNode(content, contentType, xml);
@@ -67,21 +65,20 @@ public class NonSpringHolder {
 			}
 
 		}
-		
+
 		return readValue;
 	}
-	
+
 	/*
-	
-	For now using the java model than the opeanapi component schema 
-	because of time constraints.
-	Will later reimplement using the opeanapi component schema
-	We must use the schema or the java model as otherwise there wont be enough 
-	information to decide if a property is array or a object
-	
+	 * 
+	 * For now using the java model than the opeanapi component schema because of
+	 * time constraints. Will later reimplement using the opeanapi component schema
+	 * We must use the schema or the java model as otherwise there wont be enough
+	 * information to decide if a property is array or a object
+	 * 
 	 * 
 	 */
-	
+
 	public JsonNode xmlToJsonNode(Content content, String contentType, String xml) {
 		JsonNode readValue = null;
 		if (content != null) {
@@ -92,9 +89,8 @@ public class NonSpringHolder {
 					if (schema != null) {
 						String get$ref = schema.get$ref();
 						String type = schema.getType();
-						
-						if(get$ref!=null)
-						{
+
+						if (get$ref != null) {
 							ModelPackageUtil modelPackageUtil = this.getModelPackageUtil();
 							String classname = modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
 
@@ -102,32 +98,26 @@ public class NonSpringHolder {
 
 							try {
 								Class targetType = Class.forName(fqn);
-								Object target = this.getMappingJackson2XmlHttpMessageConverter()
-										.getObjectMapper().readValue(xml, targetType);
+								Object target = this.getMappingJackson2XmlHttpMessageConverter().getObjectMapper()
+										.readValue(xml, targetType);
 								String json = this.getObjectMapper().writeValueAsString(target);
 								readValue = this.getObjectMapper().readValue(json, JsonNode.class);
 
 							} catch (ClassNotFoundException | JsonProcessingException e) {
 								logger.error("Could not convert xml to json", e);
 							}
-						}
-						else if(type!=null)
-						{
-							if(type.equals("string"))
-							{
-								//no idea about schema
-								//so whats the best we can do?
-							}
-							else
-							{
-								//must investigate
+						} else if (type != null) {
+							if (type.equals("string")) {
+								// no idea about schema
+								// so whats the best we can do?
+							} else {
+								// must investigate
 							}
 						}
-						
 
 					}
 				}
-			} 
+			}
 
 		}
 		return readValue;

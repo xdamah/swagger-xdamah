@@ -25,49 +25,45 @@ import com.atlassian.oai.validator.springmvc.InvalidRequestException;
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class SwaggerValidationExceptionHandler extends ResponseEntityExceptionHandler {
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerValidationExceptionHandler.class);
-	
-	private final ValidationReportFormat validationReportFormat=JsonValidationReportFormat.getInstance();
 
-  @ExceptionHandler(InvalidRequestException.class) 
-  public ResponseEntity<String> handle(final InvalidRequestException invalidRequestException) {
-	  
-	  ValidationReport validationReport = invalidRequestException.getValidationReport();
-	  List<Message> messages = validationReport.getMessages();
-	  
-	  List<Message> filteredMessages = new ArrayList<>();
-	  for (Message message : messages) {
-		  Level level = message.getLevel();
-		  if(level==Level.ERROR)
-		  {
-			  filteredMessages.add(message);
-		  }
+	private final ValidationReportFormat validationReportFormat = JsonValidationReportFormat.getInstance();
+
+	@ExceptionHandler(InvalidRequestException.class)
+	public ResponseEntity<String> handle(final InvalidRequestException invalidRequestException) {
+
+		ValidationReport validationReport = invalidRequestException.getValidationReport();
+		List<Message> messages = validationReport.getMessages();
+
+		List<Message> filteredMessages = new ArrayList<>();
+		for (Message message : messages) {
+			Level level = message.getLevel();
+			if (level == Level.ERROR) {
+				filteredMessages.add(message);
+			}
+		}
+		validationReport = ValidationReport.from(filteredMessages);
+
+		String json = validationReportFormat.apply(validationReport);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> responseEntity = new ResponseEntity<>(json, headers, HttpStatus.BAD_REQUEST);
+
+		return responseEntity;
 	}
-	  validationReport=ValidationReport.from(filteredMessages);
-	  
-	  String json = validationReportFormat.apply(validationReport);
-	  HttpHeaders headers= new HttpHeaders();
-	  headers.setContentType(MediaType.APPLICATION_JSON);
-	  ResponseEntity<String> responseEntity = new ResponseEntity<>(json, headers,HttpStatus.BAD_REQUEST);
-	
-    return responseEntity;
-  }
-  
-  
-  @ExceptionHandler(Exception.class)
-  
-  public ResponseEntity<Map<String, String>> handle(final Exception e) {
-	  Map<String, String> map= new HashMap<>();
-	 
-		UUID uuid = UUID.randomUUID();
-		String logRef=uuid.toString();
-		String msg="Unexpected problem happened. Note refID="+logRef;
-		
-		logger.error(msg, e);
-	
-	  map.put("problem", msg);
-    return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
 
-  
-  
+	@ExceptionHandler(Exception.class)
+
+	public ResponseEntity<Map<String, String>> handle(final Exception e) {
+		Map<String, String> map = new HashMap<>();
+
+		UUID uuid = UUID.randomUUID();
+		String logRef = uuid.toString();
+		String msg = "Unexpected problem happened. Note refID=" + logRef;
+
+		logger.error(msg, e);
+
+		map.put("problem", msg);
+		return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 }

@@ -11,20 +11,19 @@ import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class NodeMerger {
-	
+
 	private ObjectMapper jsonMapper;
-	
+
 	public NodeMerger(ObjectMapper jsonMapper) {
 		super();
 		this.jsonMapper = jsonMapper;
 	}
 
-	public ContainerNode merge(ContainerNode src, ContainerNode target) throws IOException
-	{
-		 ObjectReader objectReader = jsonMapper.readerForUpdating(target);
-		 Object updated = objectReader.readValue(src);
-		
-		 return (ContainerNode) updated;
+	public ContainerNode merge(ContainerNode src, ContainerNode target) throws IOException {
+		ObjectReader objectReader = jsonMapper.readerForUpdating(target);
+		Object updated = objectReader.readValue(src);
+
+		return (ContainerNode) updated;
 	}
 
 }

@@ -7,6 +7,9 @@ maven deploy damah
 add a logger-done
 improve the log4j2 config
 
+upgrade versions
+add restclient based tests
+
 parameters defines a  path but that path not defined in path
 
 2023-12-29T03:07:34.871+05:30 ERROR 19996 --- [nio-8080-exec-6] com.example.AnotherExceptionHandler      : Unexpected Problem Happened. Note refID=8a3dfffb-bd43-4396-aab8-191426ba17a1

@@ -64,200 +64,172 @@ import java.net.*;
 @Configuration
 public class OpenApiConfig {
 	private static final Logger logger = LoggerFactory.getLogger(OpenApiConfig.class);
-	
+
 	@Autowired
 	SwaggerController swaggerController;
-	
+
 	@Autowired
 	ResourceLoader resourceLoader;
-	
 
 	private ObjectMapper jsonMapper;
+
 	@Bean
-	OpenAPI openApi() throws IOException
-	{
-	
-		
-		
+	OpenAPI openApi() throws IOException {
+
 		logger.debug("invoked openApi()");
 		OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 		final ParseOptions options = new ParseOptions();
-        options.setResolve(true);
-      
-        //options.setResolveFully(true);
-        options.setValidateExternalRefs(true);
-        jsonMapper = ObjectMapperFactory.createJson();
-        JsonNode firstTree = jsonMapper.readTree(new File("api-docs.json"));
-        //doingmodifid  this because was unable to save the openApi object where the json is in same order as original
-        ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder();
-        pathBuilder.buildPaths((ContainerNode) firstTree, "");
-        ContainerNodeCommonModifier firstModifier= new ContainerNodeCommonModifier(pathBuilder.getPathContainerNodeMap(), 
-        		resourceLoader, jsonMapper);
-        firstModifier.modify((ContainerNode) firstTree, "");
-        
-        //firstTree ready for parsing
-        
-        JsonNode secondTree = firstTree.deepCopy();
-        pathBuilder = new ContainerNodeReaderPathBuilder();
-        pathBuilder.buildPaths((ContainerNode) secondTree, "");
-        ContainerNodeModifier modifier = new ContainerNodeModifier(pathBuilder.getPathContainerNodeMap(), 
-        		resourceLoader, jsonMapper);
-        modifier.modify((ContainerNode) secondTree, "");
-        byte[] modified = jsonMapper.writeValueAsBytes(secondTree);
-        swaggerController.setModifiedJson(modified);
-        //String modified = jsonMapper.writeValueAsString(readTree);
-       jsonMapper.writeValue(new File("api-docs-check.json"), secondTree);
-       String swaggerContent = jsonMapper.writeValueAsString(firstTree);
-		//OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
-       OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
-		//saveUsingParserJustToSeeDifference(openApi);
-		paramsToTypes(openApi);
-		
-		return openApi;
-		
-	}
-	
-	public OpenAPI read(String swaggerAsString, List<AuthorizationValue> auths, ParseOptions resolve, OpenAPIV3Parser openAPIV3Parser) {
-        if (swaggerAsString == null) {
-            return null;
-        }
+		options.setResolve(true);
 
-        final List<SwaggerParserExtension> parserExtensions = openAPIV3Parser.getExtensions();
-        SwaggerParseResult parsed;
-        for (SwaggerParserExtension extension : parserExtensions) {
-        	parsed=extension.readContents(swaggerAsString, auths, resolve);
-            //parsed = extension.readLocation(location, auths, resolve);
-            for (String message : parsed.getMessages()) {
-               // LOGGER.info("{}: {}", extension, message);
-            	logger.debug(extension+": "+message);
-            }
-            final OpenAPI result = parsed.getOpenAPI();
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
-    }
+		// options.setResolveFully(true);
+		options.setValidateExternalRefs(true);
+		jsonMapper = ObjectMapperFactory.createJson();
+		JsonNode firstTree = jsonMapper.readTree(new File("api-docs.json"));
+		// doingmodifid this because was unable to save the openApi object where the
+		// json is in same order as original
+		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder();
+		pathBuilder.buildPaths((ContainerNode) firstTree, "");
+		ContainerNodeCommonModifier firstModifier = new ContainerNodeCommonModifier(
+				pathBuilder.getPathContainerNodeMap(), resourceLoader, jsonMapper);
+		firstModifier.modify((ContainerNode) firstTree, "");
+
+		// firstTree ready for parsing
+
+		JsonNode secondTree = firstTree.deepCopy();
+		pathBuilder = new ContainerNodeReaderPathBuilder();
+		pathBuilder.buildPaths((ContainerNode) secondTree, "");
+		ContainerNodeModifier modifier = new ContainerNodeModifier(pathBuilder.getPathContainerNodeMap(),
+				resourceLoader, jsonMapper);
+		modifier.modify((ContainerNode) secondTree, "");
+		byte[] modified = jsonMapper.writeValueAsBytes(secondTree);
+		swaggerController.setModifiedJson(modified);
+		// String modified = jsonMapper.writeValueAsString(readTree);
+		jsonMapper.writeValue(new File("api-docs-check.json"), secondTree);
+		String swaggerContent = jsonMapper.writeValueAsString(firstTree);
+		// OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
+		OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
+		// saveUsingParserJustToSeeDifference(openApi);
+		paramsToTypes(openApi);
+
+		return openApi;
+
+	}
+
+	public OpenAPI read(String swaggerAsString, List<AuthorizationValue> auths, ParseOptions resolve,
+			OpenAPIV3Parser openAPIV3Parser) {
+		if (swaggerAsString == null) {
+			return null;
+		}
+
+		final List<SwaggerParserExtension> parserExtensions = openAPIV3Parser.getExtensions();
+		SwaggerParseResult parsed;
+		for (SwaggerParserExtension extension : parserExtensions) {
+			parsed = extension.readContents(swaggerAsString, auths, resolve);
+			// parsed = extension.readLocation(location, auths, resolve);
+			for (String message : parsed.getMessages()) {
+				// LOGGER.info("{}: {}", extension, message);
+				logger.debug(extension + ": " + message);
+			}
+			final OpenAPI result = parsed.getOpenAPI();
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
 
 	private void saveUsingParserJustToSeeDifference(OpenAPI openApi)
 			throws IOException, StreamWriteException, DatabindException {
 		File file = new File("result-api-docs.json");
-		logger.debug("saved in "+file.getAbsolutePath());
+		logger.debug("saved in " + file.getAbsolutePath());
 		Json.mapper().writeValue(file, openApi);
 	}
-	
-	boolean isIndexPath(String path)
-	{
+
+	boolean isIndexPath(String path) {
 		return path.endsWith("]");
 	}
-	
-	
-	
-	
-
-
-	
-
-	
 
 	private static void paramsToTypes(OpenAPI openApi) {
-		if(openApi!=null)
-		{
+		if (openApi != null) {
 			Paths paths = openApi.getPaths();
-			if(paths!=null)
-			{
+			if (paths != null) {
 				Set<String> pathsKeySet = paths.keySet();
 				for (String path : pathsKeySet) {
 					PathItem pathItem = paths.get(path);
 					examinePath(openApi, path, pathItem);
-					
+
 				}
 			}
-			
+
 			Map<String, PathItem> webhooks = openApi.getWebhooks();
-			if(webhooks!=null)
-			{
+			if (webhooks != null) {
 				Set<String> webHooksKeySet = webhooks.keySet();
 				for (String path : webHooksKeySet) {
 					PathItem pathItem = webhooks.get(path);
 					examinePath(openApi, path, pathItem);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			throw new RuntimeException("Is the openApi specs file valid");
 		}
-		
+
 	}
 
 	private static void examinePath(OpenAPI openApi, String path, PathItem pathItem) {
-		
+
 		Map<HttpMethod, Operation> readOperationsMap = pathItem.readOperationsMap();
-		if(readOperationsMap!=null)
-		{
+		if (readOperationsMap != null) {
 			Set<HttpMethod> methodKeySet = readOperationsMap.keySet();
-			if(methodKeySet!=null)
-			{
+			if (methodKeySet != null) {
 				for (HttpMethod method : methodKeySet) {
-					if(method!=null)
-					{
-						logger.debug("***Path="+path+",method="+method.name());
+					if (method != null) {
+						logger.debug("***Path=" + path + ",method=" + method.name());
 						Operation operation = readOperationsMap.get(method);
-						if(operation!=null)
-						{
+						if (operation != null) {
 							RequestBody requestBody = operation.getRequestBody();
-							if(requestBody!=null)
-							{
+							if (requestBody != null) {
 								Content content = requestBody.getContent();
-								if(content!=null)
-								{
-									
+								if (content != null) {
+
 									Set<Entry<String, MediaType>> entrySet = content.entrySet();
-									if(entrySet!=null)
-									{
+									if (entrySet != null) {
 										for (Entry<String, MediaType> entry : entrySet) {
-											
+
 											String key = entry.getKey();
 											MediaType value = entry.getValue();
-											if(value!=null)
-											{
+											if (value != null) {
 												Map<String, Example> examples = value.getExamples();
-												if(examples!=null)
-												{
+												if (examples != null) {
 													Set<Entry<String, Example>> examplesEntrySet = examples.entrySet();
-													if(examplesEntrySet!=null)
-													{
-														for (Entry<String, Example> examplesEntry: examplesEntrySet) {
+													if (examplesEntrySet != null) {
+														for (Entry<String, Example> examplesEntry : examplesEntrySet) {
 															String examplesKey = examplesEntry.getKey();
 															Example example = examplesEntry.getValue();
-															if(example!=null)
-															{
+															if (example != null) {
 																String externalValue = example.getExternalValue();
-																if(externalValue!=null)
-																{
-																	logger.debug("externalValue="+externalValue);
+																if (externalValue != null) {
+																	logger.debug("externalValue=" + externalValue);
 																}
 															}
-															
-														}	
+
+														}
 													}
-													
+
 												}
-												
+
 											}
-										
+
 										}
 									}
-								
+
 								}
-						
+
 							}
-					
+
 						}
-				
+
 					}
-				
+
 				}
 			}
 

@@ -39,51 +39,42 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import jakarta.annotation.PostConstruct;
 
-
 @Configuration
 public class DamahConfig {
 	private static final Logger logger = LoggerFactory.getLogger(DamahConfig.class);
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
 	private Method handlerMethod;
-	
+
 	@Autowired
 	OpenAPI openApi;
 	@Autowired
 	private ApplicationContext context;
-	
+
 	@Autowired
 	private ConversionService conversionService;
 	@Autowired
-	private   ObjectMapper objectMapper;
-	
-	
-	 @Autowired
-     private MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter;
-	 
-	 @PostConstruct
-	 void init()
-	 {
-		 NonSpringHolder.INSTANCE.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
-		 NonSpringHolder.INSTANCE.setObjectMapper(objectMapper);
-		 objectMapper.setSerializationInclusion(Include.NON_NULL);
-		 NonSpringHolder.INSTANCE.setModelPackageUtil(modelPackageUtil);
-		 NonSpringHolder.INSTANCE.setOpenApi(openApi);
-	 }
-	
-	
-	
-	
-	
+	private ObjectMapper objectMapper;
+
+	@Autowired
+	private MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter;
+
+	@PostConstruct
+	void init() {
+		NonSpringHolder.INSTANCE.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
+		NonSpringHolder.INSTANCE.setObjectMapper(objectMapper);
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		NonSpringHolder.INSTANCE.setModelPackageUtil(modelPackageUtil);
+		NonSpringHolder.INSTANCE.setOpenApi(openApi);
+	}
 
 	@Autowired
 	private ModelPackageUtil modelPackageUtil;
-	
 
 	@Autowired
 	public void setRequestMappingHandlerMapping(RequestMappingHandlerMapping requestMappingHandlerMapping) {
-		
+
 		this.requestMappingHandlerMapping = requestMappingHandlerMapping;
-		
+
 		Method[] declaredMethods = DamahController.class.getDeclaredMethods();
 		for (Method method : declaredMethods) {
 			if (method.getName().equals("handleRequest")) {
@@ -91,7 +82,7 @@ public class DamahConfig {
 			}
 		}
 		logger.debug("ok" + this.requestMappingHandlerMapping);
-		
+
 		Paths paths = openApi.getPaths();
 		Map<String, PathItem> webhooks = openApi.getWebhooks();
 		if (webhooks != null) {
@@ -107,11 +98,10 @@ public class DamahConfig {
 			} //
 		}
 	}
-	
+
 	private void readPathEntry(Entry<String, PathItem> pathEntry, boolean isWebHook) {
 		String path = pathEntry.getKey();
-		
-		
+
 		PathItem pathItem = pathEntry.getValue();
 		Map<HttpMethod, Operation> readOperationsMap = pathItem.readOperationsMap();
 		Set<Entry<HttpMethod, Operation>> operationsMapEntrySet = readOperationsMap.entrySet();
@@ -122,70 +112,64 @@ public class DamahConfig {
 		}
 
 	}
-	
+
 	private void readOperation(String path, HttpMethod httpMethod, PathItem pathItem, Operation operation,
 			boolean isWebHook) {
 		RequestMethod method = buildMethod(httpMethod);
-		boolean pathInUse=false;
-		boolean methodInUse=false;
-		Set<Entry<RequestMappingInfo, HandlerMethod>> requstMappingHandlerEntrySet = requestMappingHandlerMapping.getHandlerMethods().entrySet();
+		boolean pathInUse = false;
+		boolean methodInUse = false;
+		Set<Entry<RequestMappingInfo, HandlerMethod>> requstMappingHandlerEntrySet = requestMappingHandlerMapping
+				.getHandlerMethods().entrySet();
 		for (Entry<RequestMappingInfo, HandlerMethod> entry : requstMappingHandlerEntrySet) {
 			RequestMappingInfo key = entry.getKey();
 			RequestMethodsRequestCondition methodsCondition = key.getMethodsCondition();
 			Set<RequestMethod> methods = methodsCondition.getMethods();
-			if(methods.contains(method))
-			{
-				methodInUse=true;
+			if (methods.contains(method)) {
+				methodInUse = true;
 			}
 			PathPatternsRequestCondition pathPatternsCondition = key.getPathPatternsCondition();
-			if(pathPatternsCondition!=null)
-			{
+			if (pathPatternsCondition != null) {
 				Set<String> directPaths = pathPatternsCondition.getDirectPaths();
-				if(directPaths.contains(path))
-				{
-					pathInUse=true;
+				if (directPaths.contains(path)) {
+					pathInUse = true;
 				}
-				
+
 				Set<String> patternValues = pathPatternsCondition.getPatternValues();
-				if(patternValues.contains(path))
-				{
-					pathInUse=true;
+				if (patternValues.contains(path)) {
+					pathInUse = true;
 				}
-				
+
 			}
 			PatternsRequestCondition patternsCondition = key.getPatternsCondition();
-			if(patternsCondition!=null)
-			{
+			if (patternsCondition != null) {
 				Set<String> directPaths = patternsCondition.getDirectPaths();
-				if(directPaths.contains(path));
+				if (directPaths.contains(path))
+					;
 				{
-					pathInUse=true;
+					pathInUse = true;
 				}
 				Set<String> patterns2 = patternsCondition.getPatterns();
-				if(patterns2.contains(path))
-				{
-					pathInUse=true;
+				if (patterns2.contains(path)) {
+					pathInUse = true;
 				}
-				
+
 			}
-			
+
 			HandlerMethod value = entry.getValue();
-			logger.debug("value="+value.getBeanType().getName());
-			
+			logger.debug("value=" + value.getBeanType().getName());
+
 		}
-		if(pathInUse&& methodInUse)
-		{
-			//looks like a controller exists with same path and method
-			//so we wont define for this path and method
-			return ;
+		if (pathInUse && methodInUse) {
+			// looks like a controller exists with same path and method
+			// so we wont define for this path and method
+			return;
 		}
-		
+
 		RequestBody requestBody = operation.getRequestBody();
 		String[] consumesTypesArray = null;
 		if (requestBody != null) {
 			Content content = requestBody.getContent();
-			consumesTypesArray = buildContentTypes( content);
-			
+			consumesTypesArray = buildContentTypes(content);
 
 		}
 		ApiResponses apiResponses = operation.getResponses();
@@ -193,11 +177,11 @@ public class DamahConfig {
 		if (apiResponses != null) {
 			Set<Entry<String, ApiResponse>> apiResponsesEntrySet = apiResponses.entrySet();
 			for (Entry<String, ApiResponse> apiResponsesEntry : apiResponsesEntrySet) {
-			
+
 				ApiResponse value = apiResponsesEntry.getValue();
-				
+
 				Content content = value.getContent();
-				producesTypesArray = buildContentTypes( content);
+				producesTypesArray = buildContentTypes(content);
 			}
 		}
 
@@ -208,21 +192,19 @@ public class DamahConfig {
 		if (producesTypesArray != null) {
 			builder = builder.produces(producesTypesArray);
 		}
-		
 
 		RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
 		options.setPatternParser(new PathPatternParser());
-		
+
 		builder = builder.options(options);
 
 		RequestMappingInfo requestMappingInfo = builder.build();
-		
-		
+
 		DamahController damahController = new DamahController();
 		damahController.setOpenApi(this.openApi);
 		damahController.setPath(path);
 		damahController.setHttpMethod(httpMethod);
-		
+
 		damahController.setOperation(operation);
 		damahController.setPathItem(pathItem);
 		damahController.setWebHook(isWebHook);
@@ -231,16 +213,14 @@ public class DamahConfig {
 		damahController.setConversionService(conversionService);
 		damahController.setObjectMapper(objectMapper);
 		damahController.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
-		
 
 		requestMappingHandlerMapping.registerMapping(requestMappingInfo, damahController, this.handlerMethod);
-		
+
 	}
-	
-	private String[] buildContentTypes( Content content) {
-		String[] consumesTypesArray=null;
-		if(content!=null)
-		{
+
+	private String[] buildContentTypes(Content content) {
+		String[] consumesTypesArray = null;
+		if (content != null) {
 			Set<String> consumesTypeSet = new LinkedHashSet<>();
 
 			Set<Entry<String, io.swagger.v3.oas.models.media.MediaType>> contentEntrySet = content.entrySet();
@@ -257,7 +237,6 @@ public class DamahConfig {
 		return consumesTypesArray;
 	}
 
-	
 	private RequestMethod buildMethod(HttpMethod httpMethod) {
 
 		return RequestMethod.resolve(httpMethod.name());

@@ -3,10 +3,10 @@ package com.github.xdamah.controller;
 import java.util.List;
 
 public class RequestTypeInfo {
-	
+
 	private Class<?> requesType;
 	private List<String> oneOfRefs;
-	private String discriminatorPropertyName ;
+	private String discriminatorPropertyName;
 
 	public List<String> getOneOfRefs() {
 		return oneOfRefs;
@@ -34,7 +34,7 @@ public class RequestTypeInfo {
 
 	public RequestTypeInfo() {
 		super();
-		
+
 	}
 
 }

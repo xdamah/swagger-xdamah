@@ -11,21 +11,16 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class ConversionServiceBasedSerializer<E> extends StdSerializer<E> {
 	private ConversionService conversionService;
-	
-	public ConversionServiceBasedSerializer(Class<E> t,
-			ConversionService conversionService) {
-		super(t);
-		this.conversionService=conversionService;
-	}
 
-	
+	public ConversionServiceBasedSerializer(Class<E> t, ConversionService conversionService) {
+		super(t);
+		this.conversionService = conversionService;
+	}
 
 	@Override
 	public void serialize(E value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		
+
 		gen.writeString(conversionService.convert(value, String.class));
 	}
-
-	
 
 }

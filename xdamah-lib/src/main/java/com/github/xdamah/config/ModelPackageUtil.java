@@ -9,14 +9,12 @@ import com.github.xdamah.constants.Constants;
 public class ModelPackageUtil {
 	@Value("${xdamah.codegen.model.package}")
 	private String modelPackage;
-	
-	public String fqn(String simpleClassname)
-	{
-		return modelPackage+"."+simpleClassname;
+
+	public String fqn(String simpleClassname) {
+		return modelPackage + "." + simpleClassname;
 	}
-	
-	public String simpleClassNameFromComponentSchemaRef(String ref)
-	{
+
+	public String simpleClassNameFromComponentSchemaRef(String ref) {
 		return ref.substring(Constants.COMPONENTS_SCHEMA_PREFIX_LENGTH);
 	}
 
