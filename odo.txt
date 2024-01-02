@@ -1,13 +1,16 @@
-add examples in polymorphism
+improve the log4j2 config
+Add parameter examples
+Improve documentation
+In kitchen sink add postman
 
-then add try3 as kitchen sink
 
 maven deploy damah
 
-add a logger-done
-improve the log4j2 config
 
-upgrade versions
+
+
+
+upgrade springbot versions to latest
 add restclient based tests
 
 parameters defines a  path but that path not defined in path
