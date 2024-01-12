@@ -25,14 +25,17 @@ import io.swagger.v3.oas.models.PathItem.HttpMethod;
 public class ContainerNodeModifier {
 	private static final Logger logger = LoggerFactory.getLogger(ContainerNodeModifier.class);
 	private Map<String, ContainerNode> pathContainerNodeMap;
+	private Map<String, ArrayNode> parametersMap;
 	private ResourceLoader resourceLoader;
 	private ObjectMapper jsonMapper;
 
-	public ContainerNodeModifier(Map<String, ContainerNode> pathContainerNodeMap, ResourceLoader resourceLoader,
+	public ContainerNodeModifier(Map<String, ContainerNode> pathContainerNodeMap, 
+			Map<String, ArrayNode> parametersMap,
+			ResourceLoader resourceLoader,
 			ObjectMapper jsonMapper) {
 		super();
 		this.pathContainerNodeMap = pathContainerNodeMap;
-
+		this.parametersMap=parametersMap;
 		this.resourceLoader = resourceLoader;
 		this.jsonMapper = jsonMapper;
 	}
@@ -40,7 +43,7 @@ public class ContainerNodeModifier {
 	public void modify(ContainerNode containerNode, String path) throws IOException {
 
 		if (containerNode instanceof ObjectNode) {
-			// containerNode=replaceRefOperation(containerNode, path);
+			
 			Iterator<String> fieldNames = containerNode.fieldNames();
 			while (fieldNames.hasNext()) {
 				String fieldName = fieldNames.next();
@@ -48,6 +51,23 @@ public class ContainerNodeModifier {
 				JsonNode jsonNode = containerNode.get(fieldName);
 				if (jsonNode instanceof ContainerNode) {
 					modify((ContainerNode) jsonNode, path + "/" + fieldName);
+				}
+			}
+			/*
+			 * this logic will have to be mirrored at code generation.
+			 */
+			if (containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)) {
+				if (!containerNode.has("parameters"))
+				{
+					final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_REF);
+					if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) 
+					{
+						
+						String paramType = jsonNodeParamType.asText();
+						final ArrayNode arrayNode = parametersMap.get(paramType);
+						
+						((ObjectNode) containerNode).replace("parameters", arrayNode);
+					}
 				}
 			}
 			if (containerNode.has(DamahExtns.X_DAMAH_SERVICE)) {
@@ -123,58 +143,7 @@ public class ContainerNodeModifier {
 
 	}
 
-	private ContainerNode replaceRefOperation(ContainerNode containerNode, String path) throws IOException {
-		ContainerNode ret = containerNode;
-		String pathMethodNmae = isPossiblyAnOperation(path);
-
-		if (pathMethodNmae != null) {
-			if (containerNode.has("operationId")
-					&& (containerNode.has(DamahExtns.X_DAMAH) || containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)
-							|| containerNode.has(DamahExtns.X_DAMAH_PARAM_TYPE)
-							|| containerNode.has(DamahExtns.X_DAMAH_SERVICE))) {
-				// defintely an operation and subject to our rules
-				if (containerNode.has("$ref")) {
-					JsonNode jsonNode = containerNode.get("$ref");
-					if (jsonNode != null && jsonNode instanceof TextNode) {
-						String theRefTarget = jsonNode.asText();
-						if (theRefTarget.startsWith("#"))// for now not trying to use other possible targets
-						{
-							theRefTarget = theRefTarget.substring(1);
-							if (isPossiblyAnOperation(theRefTarget) != null) {
-								theRefTarget = theRefTarget.replace("~0", "~");
-								theRefTarget = theRefTarget.replace("~1", "/");
-								// logger.debug("using.theRefTarget="+theRefTarget);
-								ContainerNode theTarget = pathContainerNodeMap.get(theRefTarget);
-
-								if (theTarget != null) {
-									theTarget = theTarget.deepCopy();
-									((ObjectNode) theTarget).remove(DamahExtns.X_DAMAH_PARAM_TYPE);
-									((ObjectNode) containerNode).remove("$ref");
-									ContainerNode replacement = new NodeMerger(jsonMapper).merge(containerNode,
-											theTarget);
-									if (containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)) {
-										((ObjectNode) theTarget).set(DamahExtns.X_DAMAH_PARAM_REF,
-												containerNode.get(DamahExtns.X_DAMAH_PARAM_REF));
-									}
-									String up = up(path);
-									ContainerNode parent = pathContainerNodeMap.get(up);
-									if (parent != null && parent instanceof ObjectNode)// just being safe
-									{
-										ObjectNode parentObj = (ObjectNode) parent;
-										parentObj.set(pathMethodNmae, replacement);
-										ret = replacement;
-									}
-								}
-
-							}
-						}
-					}
-
-				}
-			}
-		}
-		return ret;
-	}
+	
 
 	private String isPossiblyAnOperation(String path) {
 		String operationMethodType = null;

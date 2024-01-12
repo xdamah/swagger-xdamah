@@ -271,7 +271,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 									if(!schema.equals(schema2))
 									{
 										//during code generation better to break and protest
-										throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties");
+										throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties. They should be same in all aspects.");
 									}
 								}
 							}

@@ -90,7 +90,8 @@ public class OpenApiConfig {
 		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder();
 		pathBuilder.buildPaths((ContainerNode) firstTree, "");
 		ContainerNodeCommonModifier firstModifier = new ContainerNodeCommonModifier(
-				pathBuilder.getPathContainerNodeMap(), resourceLoader, jsonMapper);
+				pathBuilder.getPathContainerNodeMap(), pathBuilder.getParametersMap() , 
+				resourceLoader, jsonMapper);
 		firstModifier.modify((ContainerNode) firstTree, "");
 
 		// firstTree ready for parsing
@@ -98,7 +99,9 @@ public class OpenApiConfig {
 		JsonNode secondTree = firstTree.deepCopy();
 		pathBuilder = new ContainerNodeReaderPathBuilder();
 		pathBuilder.buildPaths((ContainerNode) secondTree, "");
-		ContainerNodeModifier modifier = new ContainerNodeModifier(pathBuilder.getPathContainerNodeMap(),
+		ContainerNodeModifier modifier = new ContainerNodeModifier(
+				pathBuilder.getPathContainerNodeMap(),
+				pathBuilder.getParametersMap() ,
 				resourceLoader, jsonMapper);
 		modifier.modify((ContainerNode) secondTree, "");
 		byte[] modified = jsonMapper.writeValueAsBytes(secondTree);
