@@ -16,6 +16,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.ByteArrayResource;
@@ -159,53 +160,57 @@ public class DamahController {
 			methodAndIndexes = getMethod(requestBodyBuilder.getTargetType(),
 					refOperationParameterIfThereIsASingleParameter, paramClass);
 		}
-		Object[] args = new Object[methodAndIndexes.getArgArrayLength()];
-		if (methodAndIndexes.getReqBodyIndex() != -1) {
-			args[methodAndIndexes.getReqBodyIndex()] = reqBody;
-		}
-		if (refOperationParameterIfThereIsASingleParameter != null) {
-			// must convert here
-			if (methodAndIndexes.getParamIndex() != -1) {
-				Class singleParameterTargetType = methodAndIndexes.getSingleParameterTargetType();
-				// paramWrapperBean must be a string or list of strings
-				// at this stage can convert using swagger metadata or just depend on service
-				// arg type
-				// and give no meaning to swagger metadata
-				// no lets first convert to swagger type
-				if (paramWrapperBean != null) {
-					if (isArraySingleParam != null) {
-						Object converted = null;
-						if (isArraySingleParam) {
-							converted = singleParamConverter.convertToTypeDForSingleParam(
-									(List<String>) paramWrapperBean, refOperationParameterIfThereIsASingleParameter,
-									singleParameterTargetType);
-						} else {
-							converted = singleParamConverter.convertToTypeDForSingleParam((String) paramWrapperBean,
-									refOperationParameterIfThereIsASingleParameter, singleParameterTargetType);
+		Object ret = null;
+		if (methodAndIndexes != null) {
+			Object[] args = new Object[methodAndIndexes.getArgArrayLength()];
+			if (methodAndIndexes.getReqBodyIndex() != -1) {
+				args[methodAndIndexes.getReqBodyIndex()] = reqBody;
+			}
+			if (refOperationParameterIfThereIsASingleParameter != null) {
+				// must convert here
+				if (methodAndIndexes.getParamIndex() != -1) {
+					Class singleParameterTargetType = methodAndIndexes.getSingleParameterTargetType();
+					// paramWrapperBean must be a string or list of strings
+					// at this stage can convert using swagger metadata or just depend on service
+					// arg type
+					// and give no meaning to swagger metadata
+					// no lets first convert to swagger type
+					if (paramWrapperBean != null) {
+						if (isArraySingleParam != null) {
+							Object converted = null;
+							if (isArraySingleParam) {
+								converted = singleParamConverter.convertToTypeDForSingleParam(
+										(List<String>) paramWrapperBean, refOperationParameterIfThereIsASingleParameter,
+										singleParameterTargetType);
+							} else {
+								converted = singleParamConverter.convertToTypeDForSingleParam((String) paramWrapperBean,
+										refOperationParameterIfThereIsASingleParameter, singleParameterTargetType);
+							}
+							args[methodAndIndexes.getParamIndex()] = converted;
 						}
-						args[methodAndIndexes.getParamIndex()] = converted;
+
 					}
 
 				}
-
+			} else {
+				if (methodAndIndexes.getParamIndex() != -1) {
+					args[methodAndIndexes.getParamIndex()] = paramWrapperBean;
+				}
 			}
-		} else {
-			if (methodAndIndexes.getParamIndex() != -1) {
-				args[methodAndIndexes.getParamIndex()] = paramWrapperBean;
+			Method method = methodAndIndexes.getMethod();
+			
+			if (method != null) {
+
+				try {
+					ret = method.invoke(methodAndIndexes.getServiceBean(), args);
+
+				} catch (Exception e) {
+					throw e;
+				}
+
 			}
 		}
-		Method method = methodAndIndexes.getMethod();
-		Object ret = null;
-		if (method != null) {
 
-			try {
-				ret = method.invoke(methodAndIndexes.getServiceBean(), args);
-
-			} catch (Exception e) {
-				throw e;
-			}
-
-		}
 
 		String contentTypeTouse = null;
 		if (apiResponseFor200Or201 != null) {
@@ -420,99 +425,120 @@ public class DamahController {
 					// servicePlusMethodNmae doesnt include the openBrace
 					String servicePlusMethodNmae = serviceInfo.substring(0, openBraceIndex);
 					int lastIndexOfDot = servicePlusMethodNmae.lastIndexOf(".");
-					String serviceClassName = servicePlusMethodNmae.substring(0, lastIndexOfDot);
-					String methodName = servicePlusMethodNmae.substring(lastIndexOfDot + 1);
-					String argTypesSection = serviceInfo.substring(openBraceIndex + 1, serviceInfo.length() - 1);// we
-																													// dont
-																													// want
-																													// closing
-																													// brace
-																													// or
-																													// openingbrace
-					argTypesSection = argTypesSection.trim();
-					String[] argTypeNames = argTypesSection.split(",");
-					for (int i = 0; i < argTypeNames.length; i++) {
-						argTypeNames[i] = argTypeNames[i].trim();
+					String serviceClassBeanName = servicePlusMethodNmae.substring(0, lastIndexOfDot);
+					Object serviceBean = null;
+					try
+					{
+						serviceBean=context.getBean(serviceClassBeanName);
 					}
-					if (argTypeNames.length <= 2) {
-						methodAndIndexes.setArgArrayLength(argTypeNames.length);
-						Class[] argTypes = new Class[argTypeNames.length];
-						int bodyArgIndex = -1;
-						if (argTypeNames.length == 2) {
-							// OneOfTripRequestsItems
-							// FlightRequest
-
-							if (isActualTargetAssignableToArgType(argTypeNames[0], requestBodyTargetType)) {
-								bodyArgIndex = 0;
-								methodAndIndexes.setReqBodyIndex(0);
-								methodAndIndexes.setParamIndex(1);
-								argTypes[0] = requestBodyTargetType;
-								// [1] must be param
-								if (refOperationParameterIfThereIsASingleParameter == null) {
-									argTypes[1] = paramClass;
-								} else {
-									String clazzname = argTypeNames[1];
-									argTypes[1] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
-									methodAndIndexes.setSingleParameterTargetType(argTypes[1]);
-								}
-
-							} else if (isActualTargetAssignableToArgType(argTypeNames[1], requestBodyTargetType))
-
-							{
-								bodyArgIndex = 1;
-								methodAndIndexes.setReqBodyIndex(1);
-								methodAndIndexes.setParamIndex(0);
-								argTypes[1] = requestBodyTargetType;
-								// [0] must be param
-								if (refOperationParameterIfThereIsASingleParameter == null) {
-									argTypes[0] = paramClass;
-								} else {
-									String clazzname = argTypeNames[0];
-									argTypes[0] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
-									methodAndIndexes.setSingleParameterTargetType(argTypes[0]);
-								}
-							} else {
-								// how can this be
-								// log warning
-							}
-
-						} else if (argTypeNames.length == 1) {
-							if (requestBodyTargetType != null && paramClass == null) {
-								bodyArgIndex = 0;
-								argTypes[0] = requestBodyTargetType;
-								methodAndIndexes.setReqBodyIndex(0);
-							} else if (requestBodyTargetType == null && paramClass != null) {
-								methodAndIndexes.setParamIndex(0);
-								if (refOperationParameterIfThereIsASingleParameter == null) {
-									argTypes[0] = paramClass;
-								} else {
-									String clazzname = argTypeNames[0];
-									argTypes[0] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
-									methodAndIndexes.setSingleParameterTargetType(argTypes[0]);
-								}
-							}
-						}
-
-						else {
-							// no args
-						}
-						try {
-							Class serviceClass = Class.forName(serviceClassName);
-							Object serviceBean = context.getBean(serviceClass);
-							Method method = getActualMethod(methodName, argTypes, serviceClass, bodyArgIndex);
-							if (method == null) {
-								logger.error("Unexpected configuration- method not found ");
-							}
-							methodAndIndexes.setMethod(method);
-							methodAndIndexes.setServiceBean(serviceBean);
-						} catch (ClassNotFoundException e) {
-							logger.error("class not found", e);
-						}
-
-					} else {
-						// again no use
-						// log
+					catch(NoSuchBeanDefinitionException e)
+					{
+						logger.error("Unexpected configuration- bean: "+serviceClassBeanName+" not found", e);
+						methodAndIndexes=null;
+						return methodAndIndexes;
 					}
+					if(serviceBean!=null)
+					{
+						String methodName = servicePlusMethodNmae.substring(lastIndexOfDot + 1);
+						String argTypesSection = serviceInfo.substring(openBraceIndex + 1, serviceInfo.length() - 1);// we
+																														// dont
+																														// want
+																														// closing
+																														// brace
+																														// or
+																														// openingbrace
+						argTypesSection = argTypesSection.trim();
+						String[] argTypeNames = argTypesSection.split(",");
+						for (int i = 0; i < argTypeNames.length; i++) {
+							argTypeNames[i] = argTypeNames[i].trim();
+						}
+						if (argTypeNames.length <= 2) {
+							methodAndIndexes.setArgArrayLength(argTypeNames.length);
+							Class[] argTypes = new Class[argTypeNames.length];
+							int bodyArgIndex = -1;
+							if (argTypeNames.length == 2) {
+								// OneOfTripRequestsItems
+								// FlightRequest
+
+								if (isActualTargetAssignableToArgType(argTypeNames[0], requestBodyTargetType)) {
+									bodyArgIndex = 0;
+									methodAndIndexes.setReqBodyIndex(0);
+									methodAndIndexes.setParamIndex(1);
+									argTypes[0] = requestBodyTargetType;
+									// [1] must be param
+									if (refOperationParameterIfThereIsASingleParameter == null) {
+										argTypes[1] = paramClass;
+									} else {
+										String clazzname = argTypeNames[1];
+										argTypes[1] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
+										methodAndIndexes.setSingleParameterTargetType(argTypes[1]);
+									}
+
+								} else if (isActualTargetAssignableToArgType(argTypeNames[1], requestBodyTargetType))
+
+								{
+									bodyArgIndex = 1;
+									methodAndIndexes.setReqBodyIndex(1);
+									methodAndIndexes.setParamIndex(0);
+									argTypes[1] = requestBodyTargetType;
+									// [0] must be param
+									if (refOperationParameterIfThereIsASingleParameter == null) {
+										argTypes[0] = paramClass;
+									} else {
+										String clazzname = argTypeNames[0];
+										argTypes[0] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
+										methodAndIndexes.setSingleParameterTargetType(argTypes[0]);
+									}
+								} else {
+									// how can this be
+									// log warning
+								}
+
+							} else if (argTypeNames.length == 1) {
+								if (requestBodyTargetType != null && paramClass == null) {
+									bodyArgIndex = 0;
+									argTypes[0] = requestBodyTargetType;
+									methodAndIndexes.setReqBodyIndex(0);
+								} else if (requestBodyTargetType == null && paramClass != null) {
+									methodAndIndexes.setParamIndex(0);
+									if (refOperationParameterIfThereIsASingleParameter == null) {
+										argTypes[0] = paramClass;
+									} else {
+										String clazzname = argTypeNames[0];
+										argTypes[0] = ClassOfSingleParam.getClassOfSingleParamType(clazzname);
+										methodAndIndexes.setSingleParameterTargetType(argTypes[0]);
+									}
+								}
+							}
+
+							else {
+								// no args
+							}
+//							try {
+								Class serviceClass=serviceBean.getClass();
+								System.out.println("**********GOT serviceClass="+serviceClass.getName());
+								//Class serviceClass = Class.forName(serviceClassName);
+								
+								Method method = getActualMethod(methodName, argTypes, serviceClass, bodyArgIndex);
+								if (method == null) {
+									logger.error("Unexpected configuration- method not found ");
+								}
+								methodAndIndexes.setMethod(method);
+								methodAndIndexes.setServiceBean(serviceBean);
+//							} catch (ClassNotFoundException e) {
+//								logger.error("class not found", e);
+//							}
+
+						} else {
+							// again no use
+							// log
+						}
+					}
+					else
+					{
+						logger.error("Unexpected configuration- bean: "+serviceClassBeanName+" not found");
+					}
+
 
 				} else {
 					// warn about bad definition
