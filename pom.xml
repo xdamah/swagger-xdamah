@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.xdamah</groupId>
 	<artifactId>swagger-xdamah</artifactId>
-	<version>${revision}</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<swagger-codegen-generators-version>1.0.44</swagger-codegen-generators-version>
