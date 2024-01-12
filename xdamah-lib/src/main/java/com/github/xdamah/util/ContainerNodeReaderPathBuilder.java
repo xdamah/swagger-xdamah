@@ -33,7 +33,7 @@ public class ContainerNodeReaderPathBuilder {
 				final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_TYPE);
 				if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) {
 					String paramType = jsonNodeParamType.asText();
-					System.out.println("****paramType="+paramType);
+
 					final JsonNode parameters = containerNode.get("parameters");
 					if(parameters instanceof ArrayNode)
 					{

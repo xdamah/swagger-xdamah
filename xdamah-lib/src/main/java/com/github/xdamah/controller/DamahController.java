@@ -542,6 +542,14 @@ public class DamahController {
 
 			}
 		}
+		if (argType == null) {
+			String fqn = "java.lang."+argTypeName;
+			try {
+				argType = Class.forName(fqn);
+			} catch (ClassNotFoundException e) {
+
+			}
+		}
 		boolean ret = false;
 		if (argType != null) {
 			ret = argType.isAssignableFrom(requestBodyTargetType);

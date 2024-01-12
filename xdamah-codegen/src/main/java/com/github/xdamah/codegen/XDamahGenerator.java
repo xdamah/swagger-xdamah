@@ -306,7 +306,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 					String xDamahParamRefStr=(String) xDamahParamRef;
 					//since this is to be a ref we didnt need to create earlier
 					//must copy parametrs
-					System.out.println("*************copying parameters for "+xDamahParamRefStr+" in path="+path );
+
 					
 					final List<Parameter> list = xDamahParamMap.get(xDamahParamRefStr);
 					operation.setParameters(list);
