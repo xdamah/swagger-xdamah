@@ -135,7 +135,7 @@ public class XDamahGenerator extends DefaultGenerator {
 			}
 		}
 	}*/
-
+	private Map<String, List<Parameter>> xDamahParamMap= new HashMap<>();
 	private  void createNewTypesForParamsIfNeeded  (PathItem pathItem, String path){
 		
 		//do we need this parameters
@@ -147,7 +147,7 @@ public class XDamahGenerator extends DefaultGenerator {
 			Operation operation = readOperationsMap.get(method);
 			String operationId = operation.getOperationId();
 			List<Parameter> parameters2 = operation.getParameters();
-			if(parameters2!=null && parameters2.size()>1)
+			if(parameters2!=null && parameters2.size()>1)//only then we create wrappers
 			{
 				Map<String, Object> extensions = operation.getExtensions();
 				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);//just the type name
@@ -176,6 +176,8 @@ public class XDamahGenerator extends DefaultGenerator {
 						{
 							use=(String) xDamahParamType;
 							nameSpecified=true;
+							xDamahParamMap.put(use, parameters2);
+							
 						}
 						
 					}
@@ -240,7 +242,7 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 			Operation operation = readOperationsMap.get(method);
 			
 			List<Parameter> parameters2 = operation.getParameters();
-			if(parameters2!=null && parameters2.size()>1)
+			if(parameters2!=null && parameters2.size()>1)//only then we have to consider parameters as wrappers
 			{
 				Map<String, Object> extensions = operation.getExtensions();
 				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
@@ -294,6 +296,22 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 					
 			
 				
+			}
+			else if(parameters2==null || parameters2.size()==0)//
+			{
+				Map<String, Object> extensions = operation.getExtensions();
+				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
+				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
+				{
+					String xDamahParamRefStr=(String) xDamahParamRef;
+					//since this is to be a ref we didnt need to create earlier
+					//must copy parametrs
+					System.out.println("*************copying parameters for "+xDamahParamRefStr+" in path="+path );
+					
+					final List<Parameter> list = xDamahParamMap.get(xDamahParamRefStr);
+					operation.setParameters(list);
+					
+				}
 			}
 			
 		}

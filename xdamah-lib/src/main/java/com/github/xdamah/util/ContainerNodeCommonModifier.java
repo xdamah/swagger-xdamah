@@ -51,7 +51,52 @@ public class ContainerNodeCommonModifier {
 				}
 			}
 			
+			/*
+			 * this logic is mirrored at code gen.
+			 */
 			
+			if (containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)) {
+				boolean thereAreNoParametrs=false;
+				final boolean hasParameters = containerNode.has("parameters");
+				if(hasParameters)
+				{
+					final JsonNode jsonNode = containerNode.get("parameters");
+					if(jsonNode!=null)
+					{
+						if(jsonNode instanceof ArrayNode)
+						{
+							ArrayNode arrayNode=(ArrayNode) jsonNode;
+							if(arrayNode.size()==0)
+							{
+								//no parameters defined in teh ref
+								thereAreNoParametrs=true;
+							}
+						}
+					}
+					else
+					{
+						///?? anyways we cant do this then
+					}
+				}
+				else
+				{
+					thereAreNoParametrs=true;
+				}
+				
+				
+				if (thereAreNoParametrs)
+				{
+					final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_REF);
+					if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) 
+					{
+						
+						String paramType = jsonNodeParamType.asText();
+						final ArrayNode arrayNode = parametersMap.get(paramType);
+						
+						((ObjectNode) containerNode).replace("parameters", arrayNode);
+					}
+				}
+			}
 
 		} else if (containerNode instanceof ArrayNode) {
 			ArrayNode arrayNode = (ArrayNode) containerNode;

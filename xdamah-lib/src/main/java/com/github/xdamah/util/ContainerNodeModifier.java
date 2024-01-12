@@ -53,23 +53,7 @@ public class ContainerNodeModifier {
 					modify((ContainerNode) jsonNode, path + "/" + fieldName);
 				}
 			}
-			/*
-			 * this logic will have to be mirrored at code generation.
-			 */
-			if (containerNode.has(DamahExtns.X_DAMAH_PARAM_REF)) {
-				if (!containerNode.has("parameters"))
-				{
-					final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_REF);
-					if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) 
-					{
-						
-						String paramType = jsonNodeParamType.asText();
-						final ArrayNode arrayNode = parametersMap.get(paramType);
-						
-						((ObjectNode) containerNode).replace("parameters", arrayNode);
-					}
-				}
-			}
+			
 			if (containerNode.has(DamahExtns.X_DAMAH_SERVICE)) {
 				((ObjectNode) containerNode).put(DamahExtns.X_DAMAH_SERVICE, "hidden");
 				// ((ObjectNode) containerNode).remove(DamahExtns.X_DAMAH_PARAM_SERVICE);
