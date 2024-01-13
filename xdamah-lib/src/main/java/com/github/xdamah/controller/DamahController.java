@@ -490,8 +490,8 @@ public class DamahController {
 										methodAndIndexes.setSingleParameterTargetType(argTypes[0]);
 									}
 								} else {
-									// how can this be
-									// log warning
+									
+									logger.warn("Unexpected");
 								}
 
 							} else if (argTypeNames.length == 1) {
@@ -514,9 +514,11 @@ public class DamahController {
 							else {
 								// no args
 							}
-//							try {
+
+							//this class may be $$SpringCGLIB$$0 decorated but should still work fine for our purpose.
+							//if need later can refine
 								Class serviceClass=serviceBean.getClass();
-								System.out.println("**********GOT serviceClass="+serviceClass.getName());
+								
 								//Class serviceClass = Class.forName(serviceClassName);
 								
 								Method method = getActualMethod(methodName, argTypes, serviceClass, bodyArgIndex);
@@ -525,13 +527,10 @@ public class DamahController {
 								}
 								methodAndIndexes.setMethod(method);
 								methodAndIndexes.setServiceBean(serviceBean);
-//							} catch (ClassNotFoundException e) {
-//								logger.error("class not found", e);
-//							}
+
 
 						} else {
-							// again no use
-							// log
+							logger.error("XDamah server bean methods can have at most two arguments ");
 						}
 					}
 					else
@@ -541,7 +540,7 @@ public class DamahController {
 
 
 				} else {
-					// warn about bad definition
+					logger.error("Unexpected  bad definitions of "+DamahExtns.X_DAMAH_SERVICE+" : "+serviceInfo);
 				}
 			}
 
