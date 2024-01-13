@@ -4,3 +4,7 @@ target/
 .settings/
 .factorypath
 /maven.rev.set.jar
+/build.bat
+/install.bat
+/revert.bat
+/revset.bat
