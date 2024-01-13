@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.github.xdamah</groupId>
     <artifactId>swagger-xdamah</artifactId>
-     <version>1.0.0-SNAPSHOT</version>
+     <version>${revision}</version>
   </parent>
   <artifactId>xdamah-codegen</artifactId>
  
@@ -16,7 +16,7 @@
             <dependency>
 				<groupId>com.github.xdamah</groupId>
 			<artifactId>xdamah-common</artifactId>	
-			 <version>1.0.0-SNAPSHOT</version>
+			 <version>${revision}</version>
 			</dependency>
   </dependencies>
 </project>
