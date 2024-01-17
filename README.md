@@ -18,3 +18,7 @@ Some of its features:
 
 Read more here - https://github.com/xdamah/swagger-xdamah-examples: ...
 
+
+In a nutshell: Its a  new way to create springboot and swagger REST APIs with a unique approach and some extra features.  
+
+
