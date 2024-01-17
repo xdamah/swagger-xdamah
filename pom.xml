@@ -6,12 +6,35 @@
 	<artifactId>swagger-xdamah</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<name>Swagger XDamah</name>
+	<description>A swagger code gen extension that can eliminate controller code in Spring Rest API development with some other additional features</description>
+	<url>https://github.com/xdamah/swagger-xdamah</url>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+		</license>
+	</licenses>
 	<properties>
 		<swagger-codegen-generators-version>1.0.44</swagger-codegen-generators-version>
 		<swagger-codegen-maven-plugin-version>3.0.48</swagger-codegen-maven-plugin-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<revision>1.0.0-SNAPSHOT</revision>
 	</properties>
+	<developers>
+		<developer>
+			<name>Raghuraman Ramaswamy</name>
+			<email>raghuraman1@yahoo.com</email>
+			<organization>com.github.raghuraman1</organization>
+			<organizationUrl>https://github.com/raghuraman1</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/xdamah/swagger-xdamah.git</connection>
+		<developerConnection>scm:git:ssh://github.com:xdamah/swagger-xdamah.git</developerConnection>
+		<url>http://github.com/xdamah/swagger-xdamah/tree/main</url>
+	</scm>
+
 	<build>
 		<resources>
 			<resource>
@@ -30,6 +53,7 @@
 					<target>18</target>
 				</configuration>
 			</plugin>
+			
 		</plugins>
 
 
@@ -53,4 +77,84 @@
 
 
 	</dependencies>
+	<profiles>
+  <profile>
+    <id>release</id>
+    <build>
+     <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>18</source>
+					<target>18</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+     
+    </build>
+  </profile>
+</profiles>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 </project>
