@@ -10,3 +10,4 @@ target/
 /revset.bat
 /install2.bat
 /deploy.bat
+/setenv.bat
