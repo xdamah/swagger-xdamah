@@ -1,5 +1,9 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.xdamah/swagger-xdamah/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.swagger-xdamah/swagger-xdamah)  
 
+- [![xdamah-lib javadoc](https://javadoc.io/badge2/io.github.xdamah/xdamah-lib/javadoc.svg)](https://javadoc.io/doc/io.github.xdamah/xdamah-lib)   
+- [![xdamah-codegen javadoc](https://javadoc.io/badge2/io.github.xdamah/xdamah-lib/javadoc.svg)](https://javadoc.io/doc/io.github.xdamah/xdamah-lib)   
+- [![xdamah-maven-codegen-plugin javadoc](https://javadoc.io/badge2/io.github.xdamah/xdamah-maven-codegen-plugin/javadoc.svg)](https://javadoc.io/doc/io.github.xdamah/xdamah-maven-codegen-plugin)  
+
 
 ### Hi there 👋
 
