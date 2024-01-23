@@ -30,6 +30,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.xdamah.codegen.BooleanRet;
 import io.github.xdamah.codegen.XDamahGenerator;
 import io.swagger.codegen.CodegenConfigLoader;
 import io.swagger.codegen.v3.CliOption;
@@ -559,8 +561,8 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 
 					Object val = configOptions.get(key);
 
-					boolean isBoolean = isBoolean(declaredMethods, key);
-					if (isBoolean) {
+					BooleanRet isBoolean = isBoolean(declaredMethods, key);
+					if (isBoolean.isBoolean()) {
 						if (val != null) {
 							if (val instanceof String) {
 								val = ((String) val).toLowerCase();
@@ -571,9 +573,16 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 							val = false;
 							logger.debug("found key=" + key + " without val set it to boolean of false");
 						}
+						//for booleans why not also set them
+						try {
+							isBoolean.getBooleanSetterMethod().invoke(config, val);
+						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
 					}
-
+					
 					input.getConfig().additionalProperties().put(key, val);
 				}
 			}
@@ -649,8 +658,8 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 
 	}
 
-	private boolean isBoolean(Method[] declaredMethods, String key) {
-		boolean ret = false;
+	private BooleanRet isBoolean(Method[] declaredMethods, String key) {
+		BooleanRet ret = new BooleanRet();;
 		for (Method method : declaredMethods) {
 			java.lang.reflect.Parameter[] parameters = method.getParameters();
 			String methodName = method.getName();
@@ -668,7 +677,8 @@ public class XDamahCodeGenMojo extends AbstractMojo {
 							use += methodName.substring(4);
 						}
 						if (use.equals(key)) {
-							ret = true;
+							ret.setBoolean(true);
+							ret.setBooleanSetterMethod(method);
 							break;
 						}
 					}

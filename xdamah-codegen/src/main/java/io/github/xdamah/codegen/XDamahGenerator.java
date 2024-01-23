@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.github.xdamah.constants.DamahExtns;
+import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
 import io.swagger.codegen.v3.DefaultGenerator;
@@ -72,10 +73,28 @@ public class XDamahGenerator extends DefaultGenerator {
 	}
 
 	private Set<String> removeCustomTypeWorkAroundFromGeneratedModelBeforeGeneration() {
+		CodegenConfig optsConfig = this.opts.getConfig();
+		boolean isFqn=false;
+		if(optsConfig instanceof XDamahCodeGen)
+		{
+			XDamahCodeGen xDamahCodeGen=(XDamahCodeGen) optsConfig;
+			isFqn=xDamahCodeGen.fqn;
+			
+		}
+		
+		
 		Set<String> result = new HashSet<>();
 		 result.addAll(this.openAPI.getComponents().getSchemas().keySet());
-		 result.retainAll(this.opts.getConfig().typeMapping().keySet());
-		 result.retainAll( this.opts.getConfig().importMapping().keySet());
+		 if(isFqn)
+		 {
+			 result.retainAll( this.opts.getConfig().importMapping().values());
+		 }
+		 else
+		 {
+			 result.retainAll(optsConfig.typeMapping().keySet());
+			 result.retainAll( optsConfig.importMapping().keySet());
+		 }
+		 
 		for (String string : result) {
 			this.openAPI.getComponents().getSchemas().remove(string);
 		}
