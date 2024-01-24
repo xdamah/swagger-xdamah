@@ -55,6 +55,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 			whitelist = reqBodySchemaOneOf(whitelist);
 			whitelist = additionalProperties(whitelist);
 			whitelist = allowStringIntegerFormFieldType(whitelist);
+			whitelist = customTypeWithFqn(whitelist);
 			whitelist = allowSchemaUnknownXml(whitelist);
 			OpenApiInteractionValidator validator = OpenApiInteractionValidator.createFor(openApi)
 
@@ -133,6 +134,46 @@ public class WebConfiguration implements WebMvcConfigurer {
 													matched = true;
 												}
 											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+				}
+				return matched;
+			}
+
+		});
+		return whitelist;
+	}
+	
+	private ValidationErrorsWhitelist customTypeWithFqn(ValidationErrorsWhitelist whitelist) {
+		whitelist = whitelist.withRule("customTypeWithFqn", new WhitelistRule() {
+
+			@Override
+			public boolean matches(Message message, ApiOperation operation, Request request, Response response) {
+
+				boolean matched = false;
+				if (message.getKey().equals("validation.request.body.schema.type")) {
+					String theMessage = message.getMessage();
+					Optional<MessageContext> context = message.getContext();
+					if (context != null && context.isPresent()) {
+						MessageContext messageContext = context.get();
+						if (messageContext != null) {
+
+							Optional<Pointers> pointersOpt = messageContext.getPointers();
+							if (pointersOpt.isPresent()) {
+								Pointers pointers = pointersOpt.get();
+								if (pointers != null) {
+									String instance = pointers.getInstance();
+									if (instance != null) {
+										String template = "[Path '%s'] Instance type (string) does not match any allowed primitive type (allowed: [\"object\"])";
+										String s = String.format(template, instance);
+										logger.debug("s=" + s);
+										if (theMessage.equals(s)) {
+											matched = true;
 										}
 									}
 								}

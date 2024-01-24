@@ -107,7 +107,7 @@ public class MultiPartFormProcessor {
 						}
 
 						if (entrChildProperty) {
-							String childTypeName = modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
+							String childTypeName = modelPackageUtil.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(get$ref);
 							Schema childSchema = this.openApi.getComponents().getSchemas().get(childTypeName);
 							String fqn = modelPackageUtil.fqn(childTypeName);
 
@@ -167,7 +167,7 @@ public class MultiPartFormProcessor {
 						}
 						if (maxIndex != -1) {
 							String childTypeName = modelPackageUtil
-									.simpleClassNameFromComponentSchemaRef(usesArraItemRefNotType);
+									.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(usesArraItemRefNotType);
 							Schema childSchema = this.openApi.getComponents().getSchemas().get(childTypeName);
 							String fqn = modelPackageUtil.fqn(childTypeName);
 							Class childTargetType = null;
