@@ -1,5 +1,6 @@
 package io.github.xdamah.param;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +60,11 @@ public abstract class BaseParameterProcessor {
 					String[] src = request.getParameterValues(operationParameterName);
 					// logger.debug("got src="+Arrays.toString(src));
 					if (src != null) {
-						List<Object> list = Arrays.asList(src);
+						List list= new ArrayList<>();
+						for (int i = 0; i <src.length; i++) {
+							list.add(src[i]);
+						}
+						
 						ret = returnAndUse(operationParameterName, list);
 					}
 				} else if (operationParameter instanceof HeaderParameter) {

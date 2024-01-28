@@ -164,7 +164,12 @@ public class FormProcessor {
 									Array.set(array, i, child);
 								}
 								try {
-									BeanUtils.setProperty(reqBody, propertyName, Arrays.asList(array));
+									List list= new ArrayList<>();
+									for (int i = 0; i <= maxIndex; i++) {
+										list.add(Array.get(array, i));
+									}
+									
+									BeanUtils.setProperty(reqBody, propertyName, list);
 								} catch (IllegalAccessException | InvocationTargetException e) {
 									logger.error("unable to set property " + propertyName, e);
 								}
