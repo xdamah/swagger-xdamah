@@ -61,9 +61,7 @@ public class RequestBodyBuilder {
 	public void prepareRequestBodyTargetType(String contentType) throws ClassNotFoundException {
 		Class<?> targetType = null;
 		if (contentType != null) {
-			if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
-				contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-			}
+			
 			RequestBody requestBody = operation.getRequestBody();
 
 			if (requestBody != null) {
@@ -201,7 +199,7 @@ public class RequestBodyBuilder {
 					reqBody = ifStringElse(request, targetType,
 							mappingJackson2XmlHttpMessageConverter.getObjectMapper()::readValue);
 
-				} else if (contentType.equals(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+				} else if (contentType.equals(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)	) {
 					Map<String, Schema> schemas = this.openApi.getComponents().getSchemas();
 					boolean isForFqn=this.modelPackageUtil.isForFqn();
 					String key=isForFqn?targetType.getName():targetType.getSimpleName();
