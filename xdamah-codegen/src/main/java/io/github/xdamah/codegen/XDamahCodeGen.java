@@ -128,7 +128,7 @@ public XDamahCodeGen() {
 						
 						Map map=(Map) object;
 						String classname = (String) map.get("classname");
-						System.out.println("got classname="+classname);
+					
 						String[] split = key.split(Pattern.quote("."));
 						StringBuilder pacageName=new StringBuilder();
 						for (int i = 0; i < split.length-1; i++) {
@@ -147,20 +147,7 @@ public XDamahCodeGen() {
 						map.put("sclassname", toSimpleName(classname));
 					
 							
-						Set keySet2 = map.keySet();
-						for (Object key2 : keySet2) {
-							Object object2 = map.get(key2);
-							String str=null;
-							if(object2!=null)
-							{
-								str=object2.toString();
-								if(str.length()>50)
-								{
-									str=str.substring(0, 50);
-								}
-							}
-							System.out.println(key2+"="+str);
-						}
+						//tempInterrogate(map);
 					}
 					else
 					{
@@ -173,6 +160,23 @@ public XDamahCodeGen() {
 		}
 	
 		return objs;
+	}
+
+	private void tempInterrogate(Map map) {
+		Set keySet2 = map.keySet();
+		for (Object key2 : keySet2) {
+			Object object2 = map.get(key2);
+			String str=null;
+			if(object2!=null)
+			{
+				str=object2.toString();
+				if(str.length()>50)
+				{
+					str=str.substring(0, 50);
+				}
+			}
+			//System.out.println(key2+"="+str);
+		}
 	}
 	
 	private String toSimpleName(String classname) {

@@ -41,7 +41,7 @@ public class XdamahFqnHandlebarTemplateEngine extends HandlebarTemplateEngine {
 	      
 	        config.addHandlebarHelpers(handlebars);
 	        TemplateCache cache = handlebars.getCache();
-	        System.out.println("cache="+cache.getClass().getName());
+	        //System.out.println("cache="+cache.getClass().getName());
 	        return handlebars.compile(templateFile);
 	    }
 }

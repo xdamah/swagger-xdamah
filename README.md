@@ -3,19 +3,25 @@
 
 ### Hi there 👋
 
+swagger-xdamah is a spring boot and swagger extension for creating RESST services.  
+Its similar to Design first, works with Code First and Design First and yet a different third approach.  
+Its aim is to reduce boiler plate controller code whether handwritten or generated and rather rely on swagger specs only for same purpose.  
+It is hoped that the many new concepts here will eventually affect the existing traditional approaches.  
+If facing any difficulties or have feedback please inform using the issue tracker.   
 
-**swagger-xdamah** powers https://github.com/xdamah/swagger-xdamah-examples .
 
-Some of its features:
+**swagger-xdamah** is demonstrated here https://github.com/xdamah/swagger-xdamah-examples .
 
-- 🔭 Minimalises generated code ...
-- 🌱 Generates only the model code ...
+Its features many which cannot be found elsewhere in the world :
+
+- 🔭 Minimalises generated code.  Generates only the model code ... ...
 - 🤔 If Parameters are more than one in number wraps them into a java bean ...
 - 💬 Mixing code-first, design first and xdamah is possible ...
 - 📫 Reuse of parameter definitions. ...
 - 😄 For the same model its much easier to support requests in multiple media types - json, xml, form, multipart as swagger request ...
 - 👯 Demonstrated support for some other request types ...  
 - ⚡ Demonstrates custom types and custom validation: ...
+- 🌱 Demonstrates FQN in code gen- (Added newly)
 
 
 
