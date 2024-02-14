@@ -64,8 +64,6 @@ public abstract class BaseParameterProcessor {
 						for (int i = 0; i <src.length; i++) {
 							list.add(src[i]);
 						}
-
-
 						ret = returnAndUse(operationParameterName, list);
 					}
 				} else if (operationParameter instanceof HeaderParameter) {
