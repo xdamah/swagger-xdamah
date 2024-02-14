@@ -19,6 +19,7 @@ import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.Response;
 import com.atlassian.oai.validator.report.ValidationReport.Message;
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext;
+import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Location;
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Pointers;
 import com.atlassian.oai.validator.springmvc.OpenApiValidationInterceptor;
 import com.atlassian.oai.validator.springmvc.SpringMVCLevelResolverFactory;
@@ -55,7 +56,9 @@ public class WebConfiguration implements WebMvcConfigurer {
 			whitelist = reqBodySchemaOneOf(whitelist);
 			whitelist = additionalProperties(whitelist);
 			whitelist = allowStringIntegerFormFieldType(whitelist);
+			whitelist = customTypeWithFqn(whitelist);
 			whitelist = allowSchemaUnknownXml(whitelist);
+			whitelist = allowStringForObject(whitelist);
 			OpenApiInteractionValidator validator = OpenApiInteractionValidator.createFor(openApi)
 
 					.withCustomRequestValidation(customRequestValidator)
@@ -101,6 +104,57 @@ public class WebConfiguration implements WebMvcConfigurer {
 		});
 		return whitelist;
 	}
+	
+	
+	private ValidationErrorsWhitelist allowStringForObject(ValidationErrorsWhitelist whitelist) {
+		whitelist = whitelist.withRule("stringintegerforobject", new WhitelistRule() {
+
+			@Override
+			public boolean matches(Message message, ApiOperation operation, Request request, Response response) {
+
+				boolean matched = false;
+				if (message.getKey().equals("validation.request.body.schema.type")) {
+					String theMessage = message.getMessage();
+					
+					if(theMessage!=null && theMessage.equals("Instance type (object) does not match any allowed primitive type (allowed: [\"string\"])")) {
+						Optional<MessageContext> context = message.getContext();
+						if(context!=null &&context.isPresent())
+						{
+
+							MessageContext messageContext = context.get();
+							if(messageContext!=null)
+							{
+								Optional<String> apiRequestContentTypeOptional = messageContext.getApiRequestContentType();
+								if(apiRequestContentTypeOptional!=null && apiRequestContentTypeOptional.isPresent())
+								{
+									String apiRequestContentType = apiRequestContentTypeOptional.get();
+									if(apiRequestContentType!=null && apiRequestContentType.equals("application/json"))
+									{
+										Optional<Location> optionalLocation = messageContext.getLocation();
+										if(optionalLocation!=null && optionalLocation.isPresent())
+										{
+											Location location = optionalLocation.get();
+											if(location==Location.REQUEST)
+											{
+												matched=true;
+											}
+										}
+									}
+								}
+							}
+							
+							
+						}
+					}
+				
+
+				}
+				return matched;
+			}
+
+		});
+		return whitelist;
+	}
 
 	private ValidationErrorsWhitelist allowStringIntegerFormFieldType(ValidationErrorsWhitelist whitelist) {
 		whitelist = whitelist.withRule("stringintegerformfieldtype", new WhitelistRule() {
@@ -133,6 +187,46 @@ public class WebConfiguration implements WebMvcConfigurer {
 													matched = true;
 												}
 											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+				}
+				return matched;
+			}
+
+		});
+		return whitelist;
+	}
+	
+	private ValidationErrorsWhitelist customTypeWithFqn(ValidationErrorsWhitelist whitelist) {
+		whitelist = whitelist.withRule("customTypeWithFqn", new WhitelistRule() {
+
+			@Override
+			public boolean matches(Message message, ApiOperation operation, Request request, Response response) {
+
+				boolean matched = false;
+				if (message.getKey().equals("validation.request.body.schema.type")) {
+					String theMessage = message.getMessage();
+					Optional<MessageContext> context = message.getContext();
+					if (context != null && context.isPresent()) {
+						MessageContext messageContext = context.get();
+						if (messageContext != null) {
+
+							Optional<Pointers> pointersOpt = messageContext.getPointers();
+							if (pointersOpt.isPresent()) {
+								Pointers pointers = pointersOpt.get();
+								if (pointers != null) {
+									String instance = pointers.getInstance();
+									if (instance != null) {
+										String template = "[Path '%s'] Instance type (string) does not match any allowed primitive type (allowed: [\"object\"])";
+										String s = String.format(template, instance);
+										logger.debug("s=" + s);
+										if (theMessage.equals(s)) {
+											matched = true;
 										}
 									}
 								}

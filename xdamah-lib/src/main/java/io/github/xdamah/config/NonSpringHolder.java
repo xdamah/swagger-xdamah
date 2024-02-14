@@ -92,9 +92,9 @@ public class NonSpringHolder {
 
 						if (get$ref != null) {
 							ModelPackageUtil modelPackageUtil = this.getModelPackageUtil();
-							String classname = modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
+							String classnameIfUnderFqnElseSimpleClassName = modelPackageUtil.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(get$ref);
 
-							String fqn = modelPackageUtil.fqn(classname);
+							String fqn = modelPackageUtil.fqn(classnameIfUnderFqnElseSimpleClassName);
 
 							try {
 								Class targetType = Class.forName(fqn);

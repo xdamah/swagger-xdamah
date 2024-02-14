@@ -7,15 +7,21 @@ import io.github.xdamah.constants.Constants;
 
 @Configuration
 public class ModelPackageUtil {
-	@Value("${xdamah.codegen.model.package}")
+	//if null implies we are using fqn
+	@Value("${xdamah.codegen.model.package:#{null}}")
 	private String modelPackage;
 
-	public String fqn(String simpleClassname) {
-		return modelPackage + "." + simpleClassname;
+	public String fqn(String classnameIfUnderFqnElseSimpleClassName) {
+		return modelPackage==null? classnameIfUnderFqnElseSimpleClassName:modelPackage+ "." + classnameIfUnderFqnElseSimpleClassName;
 	}
 
-	public String simpleClassNameFromComponentSchemaRef(String ref) {
+	public String classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(String ref) {
 		return ref.substring(Constants.COMPONENTS_SCHEMA_PREFIX_LENGTH);
+	}
+	
+	public boolean isForFqn()
+	{
+		return (modelPackage==null);
 	}
 
 }

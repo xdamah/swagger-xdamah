@@ -1,14 +1,18 @@
 package io.github.xdamah.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +65,7 @@ public class RequestBodyBuilder {
 	public void prepareRequestBodyTargetType(String contentType) throws ClassNotFoundException {
 		Class<?> targetType = null;
 		if (contentType != null) {
-			if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
-				contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-			}
+			
 			RequestBody requestBody = operation.getRequestBody();
 
 			if (requestBody != null) {
@@ -80,9 +82,9 @@ public class RequestBodyBuilder {
 							if (get$ref != null) {
 								logger.debug("get$ref=" + get$ref);
 
-								String classname = modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
+								String classnameIfUnderFqnElseSimpleClassName = modelPackageUtil.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(get$ref);
 
-								String fqn = modelPackageUtil.fqn(classname);
+								String fqn = modelPackageUtil.fqn(classnameIfUnderFqnElseSimpleClassName);
 
 								targetType = Class.forName(fqn);
 
@@ -162,10 +164,10 @@ public class RequestBodyBuilder {
 									if (ref.startsWith(io.github.xdamah.constants.Constants.COMPONENTS_SCHEMA_PREFIX)
 											|| ref.startsWith(
 													io.github.xdamah.constants.Constants.COMPONENTS_SCHEMA_PREFIX1)) {
-										String simpleClassName = modelPackageUtil
-												.simpleClassNameFromComponentSchemaRef(ref);
-										if (simpleClassName.equals(discriminator)) {
-											classSimpleNmae = simpleClassName;
+										String classnameIfUnderFqnElseSimpleClassName = modelPackageUtil
+												.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(ref);
+										if (classnameIfUnderFqnElseSimpleClassName.equals(discriminator)) {
+											classSimpleNmae = classnameIfUnderFqnElseSimpleClassName;
 											break;
 										}
 									}
@@ -191,7 +193,20 @@ public class RequestBodyBuilder {
 								}
 							}
 						} else {
-							reqBody = objectMapper.readValue(isr, targetType);
+							if(targetType==String.class)
+							{
+								//we could enhance this later even more
+								//to better escape escape text
+								//but for now this certainly looks lke the best
+								reqBody=IOUtils.toString(isr);
+							}
+							else
+							{
+								reqBody = objectMapper.readValue(isr, targetType);
+							}
+							
+						
+							
 						}
 
 						logger.debug("reqBody=" + reqBody);
@@ -201,16 +216,20 @@ public class RequestBodyBuilder {
 					reqBody = ifStringElse(request, targetType,
 							mappingJackson2XmlHttpMessageConverter.getObjectMapper()::readValue);
 
-				} else if (contentType.equals(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+				} else if (contentType.equals(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)	) {
 					Map<String, Schema> schemas = this.openApi.getComponents().getSchemas();
-					Schema schema = schemas.get(targetType.getSimpleName());
+					boolean isForFqn=this.modelPackageUtil.isForFqn();
+					String key=isForFqn?targetType.getName():targetType.getSimpleName();
+					Schema schema = schemas.get(key);
 					FormProcessor formProcessor = new FormProcessor(request, this.modelPackageUtil, this.openApi,
 							this.conversionService);
 					reqBody = formProcessor.buildForForm(targetType, schema, "");
 
 				} else if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
 					Map<String, Schema> schemas = this.openApi.getComponents().getSchemas();
-					Schema schema = schemas.get(targetType.getSimpleName());
+					boolean isForFqn=this.modelPackageUtil.isForFqn();
+					String key=isForFqn?targetType.getName():targetType.getSimpleName();
+					Schema schema = schemas.get(key);
 					MultiPartFormProcessor formProcessor = new MultiPartFormProcessor(request, this.modelPackageUtil,
 							this.openApi, this.conversionService);
 					reqBody = formProcessor.buildForMultiPartForm(targetType, schema, "");

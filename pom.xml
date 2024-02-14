@@ -7,7 +7,7 @@
 	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<name>Swagger XDamah</name>
-	<description>A swagger code gen extension that can eliminate controller code
+	<description>A swagger code gen extension and Spring Boot extension that can eliminate controller code
 		in Spring Rest API development with some other additional features</description>
 	<url>https://github.com/xdamah/swagger-xdamah</url>
 	<licenses>
@@ -20,7 +20,11 @@
 		<swagger-codegen-generators-version>1.0.44</swagger-codegen-generators-version>
 		<swagger-codegen-maven-plugin-version>3.0.48</swagger-codegen-maven-plugin-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<revision>1.0.1</revision>
+
+		<revision>1.0.2-SNAPSHOT</revision>
+		<!-- spring-boot-version used only in xdamah-lib -->
+		<spring-boot-version>3.2.2</spring-boot-version>
+
 	</properties>
 	<developers>
 		<developer>

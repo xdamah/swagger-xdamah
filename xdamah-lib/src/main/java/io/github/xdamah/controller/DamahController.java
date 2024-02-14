@@ -93,6 +93,16 @@ public class DamahController {
 		logger.debug("debug handling for path=" + path);
 
 		String contentType = request.getContentType();
+		if(contentType!=null)
+		{
+			if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
+				contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+			}
+			else if (contentType.startsWith(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+				contentType = org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+			}
+		}
+	
 
 		RequestBodyBuilder requestBodyBuilder = new RequestBodyBuilder(operation, modelPackageUtil, objectMapper,
 				mappingJackson2XmlHttpMessageConverter, openApi, conversionService);

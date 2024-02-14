@@ -107,7 +107,7 @@ public class MultiPartFormProcessor {
 						}
 
 						if (entrChildProperty) {
-							String childTypeName = modelPackageUtil.simpleClassNameFromComponentSchemaRef(get$ref);
+							String childTypeName = modelPackageUtil.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(get$ref);
 							Schema childSchema = this.openApi.getComponents().getSchemas().get(childTypeName);
 							String fqn = modelPackageUtil.fqn(childTypeName);
 
@@ -167,7 +167,7 @@ public class MultiPartFormProcessor {
 						}
 						if (maxIndex != -1) {
 							String childTypeName = modelPackageUtil
-									.simpleClassNameFromComponentSchemaRef(usesArraItemRefNotType);
+									.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(usesArraItemRefNotType);
 							Schema childSchema = this.openApi.getComponents().getSchemas().get(childTypeName);
 							String fqn = modelPackageUtil.fqn(childTypeName);
 							Class childTargetType = null;
@@ -301,33 +301,42 @@ public class MultiPartFormProcessor {
 	 */
 	private Object getRequestParamterValue(String path, String propertyName, String format) throws IOException {
 		Object ret = null;
+		
 		String parameterName = path + propertyName;
 		List<Part> partsList = requestPartsMap.get(parameterName);
 		if (partsList != null && partsList.size() != 0) {
+			
 			Part part = partsList.get(0);
 			if (part != null) {
 				String contentType = part.getContentType();
-				if (contentType != null) {
-
+				if (contentType != null && !contentType.startsWith("text/plain")) {
 					InputStream inputStream = part.getInputStream();
-					if (format.equals("byte")) {
-						ret = IOUtils.toByteArray(inputStream);
-					} else if (format.equals("binary")) {
+					if(format!=null)
+					{
+						if (format.equals("byte")) {
+							ret = IOUtils.toByteArray(inputStream);
+						} else if (format.equals("binary")) {
 
-						Resource r = new InputStreamResource(inputStream) {
+							Resource r = new InputStreamResource(inputStream) {
 
-							@Override
-							public String getFilename() {
+								@Override
+								public String getFilename() {
 
-								return part.getSubmittedFileName();
-							}
+									return part.getSubmittedFileName();
+								}
 
-						};
+							};
 
-						ret = r;
-					} else {
-						// unexpected
+							ret = r;
+						} else {
+							logger.error("Unexpected format . Parameter is "+parameterName+" and format is "+format);
+						}
 					}
+					else
+					{
+						logger.error("Not expecting format to be null. Parameter is "+parameterName);
+					}
+					
 
 				} else {
 					if (format != null) {
