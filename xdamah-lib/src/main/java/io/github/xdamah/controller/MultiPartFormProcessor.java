@@ -185,11 +185,11 @@ public class MultiPartFormProcessor {
 
 									Array.set(array, i, child);
 								}
+								List list= new ArrayList<>();
+								for (int i = 0; i <= maxIndex; i++) {
+									list.add(Array.get(array, i));
+								}
 								try {
-									List list= new ArrayList<>();
-									for (int i = 0; i <= maxIndex; i++) {
-										list.add(Array.get(array, i));
-									}
 									BeanUtils.setProperty(reqBody, propertyName, list);
 								} catch (IllegalAccessException | InvocationTargetException e) {
 									logger.error("unable to set property " + propertyName, e);
