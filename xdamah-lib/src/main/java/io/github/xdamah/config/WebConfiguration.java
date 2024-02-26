@@ -23,6 +23,7 @@ import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Locati
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Pointers;
 import com.atlassian.oai.validator.springmvc.OpenApiValidationInterceptor;
 import com.atlassian.oai.validator.springmvc.SpringMVCLevelResolverFactory;
+import com.atlassian.oai.validator.springmvc.DamahOpenApiValidationInterceptor;
 import com.atlassian.oai.validator.whitelist.ValidationErrorsWhitelist;
 import com.atlassian.oai.validator.whitelist.rule.WhitelistRule;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.NodeType;
+
 
 import io.swagger.v3.oas.models.OpenAPI;
 
@@ -64,7 +66,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 					.withCustomRequestValidation(customRequestValidator)
 					.withLevelResolver(SpringMVCLevelResolverFactory.create()).withWhitelist(whitelist).build();
 
-			final OpenApiValidationInterceptor openApiValidationInterceptor = new OpenApiValidationInterceptor(
+			final OpenApiValidationInterceptor openApiValidationInterceptor = new DamahOpenApiValidationInterceptor(
 					validator);
 			registry.addInterceptor(openApiValidationInterceptor);
 		}
