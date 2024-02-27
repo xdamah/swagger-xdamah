@@ -21,9 +21,8 @@ import com.atlassian.oai.validator.report.ValidationReport.Message;
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext;
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Location;
 import com.atlassian.oai.validator.report.ValidationReport.MessageContext.Pointers;
-import com.atlassian.oai.validator.springmvc.OpenApiValidationInterceptor;
-import com.atlassian.oai.validator.springmvc.SpringMVCLevelResolverFactory;
 import com.atlassian.oai.validator.springmvc.DamahOpenApiValidationInterceptor;
+import com.atlassian.oai.validator.springmvc.SpringMVCLevelResolverFactory;
 import com.atlassian.oai.validator.whitelist.ValidationErrorsWhitelist;
 import com.atlassian.oai.validator.whitelist.rule.WhitelistRule;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.NodeType;
-
 
 import io.swagger.v3.oas.models.OpenAPI;
 
@@ -47,6 +45,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 	ObjectMapper mapper;
 	@Autowired
 	CustomRequestValidator customRequestValidator;
+	
+
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
@@ -61,16 +61,70 @@ public class WebConfiguration implements WebMvcConfigurer {
 			whitelist = customTypeWithFqn(whitelist);
 			whitelist = allowSchemaUnknownXml(whitelist);
 			whitelist = allowStringForObject(whitelist);
+			whitelist =allowFormatDateTime(whitelist);
 			OpenApiInteractionValidator validator = OpenApiInteractionValidator.createFor(openApi)
 
 					.withCustomRequestValidation(customRequestValidator)
 					.withLevelResolver(SpringMVCLevelResolverFactory.create()).withWhitelist(whitelist).build();
 
-			final OpenApiValidationInterceptor openApiValidationInterceptor = new DamahOpenApiValidationInterceptor(
+			final DamahOpenApiValidationInterceptor openApiValidationInterceptor = new DamahOpenApiValidationInterceptor(
 					validator);
+			
+			
 			registry.addInterceptor(openApiValidationInterceptor);
 		}
 	}
+	
+	private ValidationErrorsWhitelist allowFormatDateTime(ValidationErrorsWhitelist whitelist) {
+		whitelist = whitelist.withRule("stringintegerforobject", new WhitelistRule() {
+
+			@Override
+			public boolean matches(Message message, ApiOperation operation, Request request, Response response) {
+
+				boolean matched = false;
+				if (message.getKey().equals("validation.request.body.schema.format.date-time")) {
+					String theMessage = message.getMessage();
+					
+					if(theMessage!=null && theMessage.endsWith("is invalid against requested date format(s) [yyyy-MM-dd'T'HH:mm:ssZ, yyyy-MM-dd'T'HH:mm:ss.[0-9]{1,12}Z]")) {
+						Optional<MessageContext> context = message.getContext();
+						if(context!=null &&context.isPresent())
+						{
+
+							MessageContext messageContext = context.get();
+							if(messageContext!=null)
+							{
+								Optional<String> apiRequestContentTypeOptional = messageContext.getApiRequestContentType();
+								if(apiRequestContentTypeOptional!=null && apiRequestContentTypeOptional.isPresent())
+								{
+									String apiRequestContentType = apiRequestContentTypeOptional.get();
+									if(apiRequestContentType!=null && apiRequestContentType.equals("multipart/form-data"))
+									{
+										Optional<Location> optionalLocation = messageContext.getLocation();
+										if(optionalLocation!=null && optionalLocation.isPresent())
+										{
+											Location location = optionalLocation.get();
+											if(location==Location.REQUEST)
+											{
+												matched=true;
+											}
+										}
+									}
+								}
+							}
+							
+							
+						}
+					}
+				
+
+				}
+				return matched;
+			}
+
+		});
+		return whitelist;
+	}
+
 
 	private ValidationErrorsWhitelist allowSchemaUnknownXml(ValidationErrorsWhitelist whitelist) {
 		whitelist = whitelist.withRule("SchemaUnknownXml", new WhitelistRule() {
@@ -175,7 +229,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 							if (apiRequestContentTypeOpt.isPresent()) {
 								String apiRequestContentType = apiRequestContentTypeOpt.get();
 								if (apiRequestContentType != null
-										&& apiRequestContentType.equals("application/x-www-form-urlencoded")) {
+										&& (apiRequestContentType.equals("application/x-www-form-urlencoded")||apiRequestContentType.equals("multipart/form-data"))) {
 									Optional<Pointers> pointersOpt = messageContext.getPointers();
 									if (pointersOpt.isPresent()) {
 										Pointers pointers = pointersOpt.get();

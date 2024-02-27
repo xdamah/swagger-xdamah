@@ -1,18 +1,19 @@
 package com.atlassian.oai.validator.springmvc;
 
 
+import static com.atlassian.oai.validator.springmvc.OpenApiValidationFilter.ATTRIBUTE_REQUEST_VALIDATION;
+import static com.atlassian.oai.validator.springmvc.OpenApiValidationFilter.ATTRIBUTE_RESPONSE_VALIDATION;
 import static org.apache.commons.lang3.ClassUtils.getPackageName;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.support.EncodedResource;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.UrlPathHelper;
@@ -22,21 +23,14 @@ import com.atlassian.oai.validator.model.Body;
 import com.atlassian.oai.validator.model.ByteArrayBody;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.report.ValidationReport;
-import com.atlassian.oai.validator.springmvc.OpenApiValidationFilter;
-import com.atlassian.oai.validator.springmvc.OpenApiValidationInterceptor;
-import com.atlassian.oai.validator.springmvc.OpenApiValidationService;
-import com.atlassian.oai.validator.springmvc.ResettableInputStreamBody;
-import com.atlassian.oai.validator.springmvc.ResettableRequestServletWrapper;
-import com.atlassian.oai.validator.springmvc.ValidationReportHandler;
-import com.atlassian.oai.validator.springmvc.ResettableRequestServletWrapper.CachingServletInputStream;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
 
+import io.github.xdamah.controller.DamahController;
+import io.github.xdamah.controller.RequestBodyBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
-
-import static com.atlassian.oai.validator.springmvc.OpenApiValidationFilter.ATTRIBUTE_REQUEST_VALIDATION;
-import static com.atlassian.oai.validator.springmvc.OpenApiValidationFilter.ATTRIBUTE_RESPONSE_VALIDATION;
 
 public class DamahOpenApiValidationInterceptor extends OpenApiValidationInterceptor {
 	
@@ -95,33 +89,32 @@ public class DamahOpenApiValidationInterceptor extends OpenApiValidationIntercep
 	            LOG.debug("OpenAPI request validation skipped for this request");
 	        } else {
 	            if (servletRequest instanceof ResettableRequestServletWrapper) {
-	                final InputStream inputStream = servletRequest.getInputStream();
-	                final Supplier<Body> bodySupplier = () -> new ResettableInputStreamBody((ResettableRequestServletWrapper.CachingServletInputStream) inputStream);
-	                validateRequest(servletRequest, bodySupplier);
-	                // reset the request's servlet input stream after reading it on validation
-	                ((ResettableRequestServletWrapper) servletRequest).resetInputStream();
+	            	//xml,json
+	            	//we must make the stream rereadable if we must use handleForm
+	            	//for later
+	            	boolean handled=false;//handleForm(servletRequest, handler);
+	            	if(!handled)
+	            	{
+	            		final InputStream inputStream = servletRequest.getInputStream();
+		                final Supplier<Body> bodySupplier = () -> new ResettableInputStreamBody((ResettableRequestServletWrapper.CachingServletInputStream) inputStream);
+		                validateRequest(servletRequest, bodySupplier);
+		                // reset the request's servlet input stream after reading it on validation
+		                ((ResettableRequestServletWrapper) servletRequest).resetInputStream();
+	            	}
+	                
 	            } else if (servletRequest instanceof ContentCachingRequestWrapper) {
-	            	
-	                final Supplier<Body> bodySupplier = () ->{
-	                	byte[] contentAsByteArray = ((ContentCachingRequestWrapper) servletRequest).getContentAsByteArray();
-	                	System.out.println("check=["+new String(contentAsByteArray)+"]");
-	                	ByteArrayBody ret = new ByteArrayBody(contentAsByteArray);
-	                	return ret;
-	                	};
-	                validateRequest(servletRequest, bodySupplier);
+	            	//form
+	            	boolean handled=handleForm(servletRequest, handler);
+	            	if(!handled)
+	            	{
+	            		//original logic from base class
+	            		final Supplier<Body> bodySupplier = () -> new ByteArrayBody(((ContentCachingRequestWrapper) servletRequest).getContentAsByteArray());
+	                    validateRequest(servletRequest, bodySupplier);
+	            	}
 	            } else if (servletRequest instanceof StandardMultipartHttpServletRequest) {
 	            	
-	            	final Supplier<Body> bodySupplier = () -> {
-	            		byte[] content;
-						try {
-							content = ctsm(servletRequest);
-							return new ByteArrayBody(content);
-						} catch (IOException | ServletException e) {
-							throw new RuntimeException("problem", e);
-						}
-	            		
-	            		};
-	                validateRequest(servletRequest, bodySupplier);
+	            	handleForm(servletRequest, handler);
+	            	//since this is new we dont have any alternative original
 	            }
 	            
 	            else {
@@ -130,34 +123,51 @@ public class DamahOpenApiValidationInterceptor extends OpenApiValidationIntercep
 	        }
 	        return true;
 	    }
-	 
-	  private byte[] ctsm(HttpServletRequest request) throws IOException, ServletException
-	    {
-	    	StringBuilder sb= new StringBuilder();
-	    	Collection<Part> parts = request.getParts();
-			for (Part part : parts) {
-				String parameterName = part.getName();
-				String contentType = part.getContentType();
-				//this is for binary
-				if(contentType!=null  && !contentType.startsWith("text/plain"))
-				{
-					//lets for now ignore them for validations
-				}
-				else
-				{
-					String[] parameterValues = request.getParameterValues(parameterName);
-					
-					for (String parameterValue : parameterValues) {
-						sb.append("&"+parameterName+"="+parameterValue);
-					}
-				}
-				
+
+	private boolean handleForm(final HttpServletRequest servletRequest, final Object handler)
+			throws ClassNotFoundException, IOException, StreamReadException, DatabindException, AssertionError,
+			ServletException {
+		boolean handled=false;
+		String contentType = servletRequest.getContentType();
+		if(contentType!=null)
+		{
+			if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
+				contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 			}
-			sb.delete(0, 1);
-			String string = sb.toString();
-			System.out.println(string);
-	    	return string.getBytes();
-	    }
+			else if (contentType.startsWith(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+				contentType = org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+			}
+		}
+		
+		
+		if(handler instanceof HandlerMethod)
+		{
+			HandlerMethod hm=(HandlerMethod) handler;
+			Object handlerMethodBean = hm.getBean();
+			if(handlerMethodBean instanceof DamahController)
+			{
+				handled=true;
+			
+				DamahController c = (DamahController) handlerMethodBean;
+				RequestBodyBuilder requestBodyBuilder = new RequestBodyBuilder(c.getOperation(), 
+						c.getModelPackageUtil(), c.getObjectMapper(),
+						c.getMappingJackson2XmlHttpMessageConverter(), c.getOpenApi(), 
+						c.getConversionService());
+
+				requestBodyBuilder.prepareRequestBodyTargetType(contentType);
+				Object reqBody = requestBodyBuilder.buildRequestBody(servletRequest, contentType);
+				final Supplier<Body> bodySupplier = () ->new XdamahBody(reqBody, c.getObjectMapper());
+					validateRequest(servletRequest, bodySupplier);
+			}
+			
+			
+			
+		}
+		return handled;
+	}
+	 
+	 
+
 	    
 
 }

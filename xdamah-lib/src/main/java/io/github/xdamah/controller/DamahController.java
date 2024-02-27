@@ -68,13 +68,33 @@ public class DamahController {
 	private final SingleParamConverter singleParamConverter = new SingleParamConverter();
 	private ModelPackageUtil modelPackageUtil;
 
+	public ModelPackageUtil getModelPackageUtil() {
+		return modelPackageUtil;
+	}
+
 	private ConversionService conversionService;
+	public ConversionService getConversionService() {
+		return conversionService;
+	}
+
 	private ApplicationContext context;
 
 	private MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter;
+	public MappingJackson2XmlHttpMessageConverter getMappingJackson2XmlHttpMessageConverter() {
+		return mappingJackson2XmlHttpMessageConverter;
+	}
+
 	private ObjectMapper objectMapper;
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
+
 	private String path;
 	private OpenAPI openApi;
+
+	public OpenAPI getOpenApi() {
+		return openApi;
+	}
 
 	public void setOpenApi(OpenAPI openApi) {
 		this.openApi = openApi;
@@ -83,6 +103,10 @@ public class DamahController {
 	private HttpMethod httpMethod;
 	private PathItem pathItem;
 	private Operation operation;
+	public Operation getOperation() {
+		return operation;
+	}
+
 	private boolean isWebHook;
 
 	// might need to disable caching if we need this to work with polymorphism later
