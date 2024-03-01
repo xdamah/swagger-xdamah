@@ -57,6 +57,8 @@ public class DamahConfig {
 
 	@Autowired
 	private MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter;
+	@Autowired
+	private ModelPackageUtil modelPackageUtil;
 
 	@PostConstruct
 	void init() {
@@ -67,8 +69,7 @@ public class DamahConfig {
 		NonSpringHolder.INSTANCE.setOpenApi(openApi);
 	}
 
-	@Autowired
-	private ModelPackageUtil modelPackageUtil;
+	
 
 	@Autowired
 	public void setRequestMappingHandlerMapping(RequestMappingHandlerMapping requestMappingHandlerMapping) {
