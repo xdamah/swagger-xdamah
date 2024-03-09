@@ -65,7 +65,14 @@ public class ContainerNodeReaderPathBuilder {
 				try {
 					String s = mapper.writerFor(Schema.class).writeValueAsString(schema);
 					ObjectNode readValue = mapper.readerFor(ObjectNode.class).readValue(s);
-					containerNode.put(key, readValue);
+					JsonNode jsonNode = containerNode.get(key);
+					//here we ensure that we dont overwrite what is there in the json
+					//eg custom schema object
+					if(jsonNode==null)
+					{
+						containerNode.put(key, readValue);
+					}
+					
 				} catch (JsonProcessingException e) {
 					logger.error("JsonProcessingException "+fqn, e);
 				}
