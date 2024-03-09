@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -72,6 +73,9 @@ public class OpenApiConfig {
 	ResourceLoader resourceLoader;
 
 	private ObjectMapper jsonMapper;
+	
+	@Autowired
+	private ModelPackageUtil modelPackageUtil;
 
 	@Bean
 	OpenAPI openApi() throws IOException {
@@ -87,7 +91,7 @@ public class OpenApiConfig {
 		JsonNode firstTree = jsonMapper.readTree(new File("api-docs.json"));
 		// doingmodifid this because was unable to save the openApi object where the
 		// json is in same order as original
-		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder();
+		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil);
 		pathBuilder.buildPaths((ContainerNode) firstTree, "");
 		ContainerNodeCommonModifier firstModifier = new ContainerNodeCommonModifier(
 				pathBuilder.getPathContainerNodeMap(), pathBuilder.getParametersMap() , 
@@ -97,18 +101,22 @@ public class OpenApiConfig {
 		// firstTree ready for parsing
 
 		JsonNode secondTree = firstTree.deepCopy();
-		pathBuilder = new ContainerNodeReaderPathBuilder();
+		pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil);
 		pathBuilder.buildPaths((ContainerNode) secondTree, "");
+		
 		ContainerNodeModifier modifier = new ContainerNodeModifier(
 				pathBuilder.getPathContainerNodeMap(),
 				pathBuilder.getParametersMap() ,
 				resourceLoader, jsonMapper);
 		modifier.modify((ContainerNode) secondTree, "");
+		
 		byte[] modified = jsonMapper.writeValueAsBytes(secondTree);
+		
 		swaggerController.setModifiedJson(modified);
 		// String modified = jsonMapper.writeValueAsString(readTree);
 		jsonMapper.writeValue(new File("api-docs-check.json"), secondTree);
 		String swaggerContent = jsonMapper.writeValueAsString(firstTree);
+		FileUtils.write(new File("api-docs-firstTree.json"), swaggerContent);
 		// OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
 		OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
 		// saveUsingParserJustToSeeDifference(openApi);

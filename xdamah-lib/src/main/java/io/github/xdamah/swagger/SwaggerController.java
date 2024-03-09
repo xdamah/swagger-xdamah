@@ -2,6 +2,7 @@ package io.github.xdamah.swagger;
 
 import java.net.MalformedURLException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileUrlResource;
@@ -10,8 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.xdamah.config.ModelPackageUtil;
+
 @RestController
 public class SwaggerController {
+	
+	
 
 	private byte[] modifiedJson;
 

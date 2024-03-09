@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -19,8 +21,16 @@ import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.constants.DamahExtns;
+
+import io.swagger.v3.core.converter.ModelConverters;
+
+import io.swagger.v3.core.util.Json31;
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.oas.models.PathItem.HttpMethod;
+import io.swagger.v3.oas.models.media.Schema;
 
 public class ContainerNodeModifier {
 	private static final Logger logger = LoggerFactory.getLogger(ContainerNodeModifier.class);
@@ -28,6 +38,7 @@ public class ContainerNodeModifier {
 	private Map<String, ArrayNode> parametersMap;
 	private ResourceLoader resourceLoader;
 	private ObjectMapper jsonMapper;
+	
 
 	public ContainerNodeModifier(Map<String, ContainerNode> pathContainerNodeMap, 
 			Map<String, ArrayNode> parametersMap,
@@ -38,6 +49,7 @@ public class ContainerNodeModifier {
 		this.parametersMap=parametersMap;
 		this.resourceLoader = resourceLoader;
 		this.jsonMapper = jsonMapper;
+		
 	}
 
 	public void modify(ContainerNode containerNode, String path) throws IOException {
@@ -53,6 +65,8 @@ public class ContainerNodeModifier {
 					modify((ContainerNode) jsonNode, path + "/" + fieldName);
 				}
 			}
+			
+		
 			
 			if (containerNode.has(DamahExtns.X_DAMAH_SERVICE)) {
 				((ObjectNode) containerNode).put(DamahExtns.X_DAMAH_SERVICE, "hidden");
@@ -126,7 +140,7 @@ public class ContainerNodeModifier {
 		}
 
 	}
-
+	
 	
 
 	private String isPossiblyAnOperation(String path) {
