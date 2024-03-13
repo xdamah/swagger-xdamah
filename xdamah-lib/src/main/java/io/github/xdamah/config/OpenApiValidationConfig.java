@@ -59,9 +59,9 @@ public class OpenApiValidationConfig {
 
 	@PostConstruct
 	void init() {
-		if (customRequestValidator instanceof IOpenApiValidationConfigOnInitWorkaround) {
-			IOpenApiValidationConfigOnInitWorkaround initTarget = (IOpenApiValidationConfigOnInitWorkaround) customRequestValidator;
-			initTarget.onInitInOpenApiValidationConfig();
+		if (customRequestValidator instanceof ICustomSchemaRegisty) {
+			ICustomSchemaRegisty initTarget = (ICustomSchemaRegisty) customRequestValidator;
+			initTarget.onInitRegisterCustomSchemas();
 
 			Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer = new Jackson2ObjectMapperBuilderCustomizer() {
 
@@ -162,6 +162,7 @@ public class OpenApiValidationConfig {
 			logger.debug("!!!!context=" + context.getClass().getName());
 
 			Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
+			
 			for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
 
 				Schema schema = openApi.getComponents().getSchemas().get(customSchemaImportMappingEntry.getKey());
