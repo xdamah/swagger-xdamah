@@ -67,7 +67,7 @@ public class ContainerNodeReaderPathBuilder {
 					ObjectNode readValue = mapper.readerFor(ObjectNode.class).readValue(s);
 					JsonNode jsonNode = containerNode.get(key);
 					//here we ensure that we dont overwrite what is there in the json
-					//eg custom schema object
+					
 					if(jsonNode==null)
 					{
 						containerNode.put(key, readValue);
@@ -89,6 +89,55 @@ public class ContainerNodeReaderPathBuilder {
 
 	public void buildPaths(ContainerNode containerNode, String path) throws IOException {
 		
+		
+
+		pathContainerNodeMap.put(path, containerNode);
+		if (containerNode instanceof ObjectNode) {
+
+			
+			if (containerNode.has(DamahExtns.X_DAMAH_PARAM_TYPE)) {
+				final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_TYPE);
+				if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) {
+					String paramType = jsonNodeParamType.asText();
+
+					final JsonNode parameters = containerNode.get("parameters");
+					if(parameters instanceof ArrayNode)
+					{
+						ArrayNode parametersArr=(ArrayNode) parameters;
+						//all good so far
+						parametersMap.put(paramType, parametersArr);
+					}
+				}
+				
+				
+			}
+
+			Iterator<String> fieldNames = containerNode.fieldNames();
+			while (fieldNames.hasNext()) {
+				String fieldName = fieldNames.next();
+				
+
+				JsonNode jsonNode = containerNode.get(fieldName);
+				if (jsonNode instanceof ContainerNode) {
+					buildPaths((ContainerNode) jsonNode, path + "/" + fieldName);
+				}
+			}
+
+		} else if (containerNode instanceof ArrayNode) {
+			ArrayNode arrayNode = (ArrayNode) containerNode;
+			int size = arrayNode.size();
+			for (int i = 0; i < size; i++) {
+				JsonNode jsonNode = arrayNode.get(i);
+				if (jsonNode instanceof ContainerNode) {
+					buildPaths((ContainerNode) jsonNode, path + "[" + i + "]");
+				}
+			}
+
+		}
+
+	}
+
+	public void buildModels(ContainerNode containerNode) {
 		if (containerNode.has(DamahExtns.X_DAMAH_MODELS)) {
 			
 			
@@ -143,50 +192,5 @@ public class ContainerNodeReaderPathBuilder {
 			
 			
 		}
-
-		pathContainerNodeMap.put(path, containerNode);
-		if (containerNode instanceof ObjectNode) {
-
-			
-			if (containerNode.has(DamahExtns.X_DAMAH_PARAM_TYPE)) {
-				final JsonNode jsonNodeParamType = containerNode.get(DamahExtns.X_DAMAH_PARAM_TYPE);
-				if (jsonNodeParamType != null && jsonNodeParamType instanceof TextNode) {
-					String paramType = jsonNodeParamType.asText();
-
-					final JsonNode parameters = containerNode.get("parameters");
-					if(parameters instanceof ArrayNode)
-					{
-						ArrayNode parametersArr=(ArrayNode) parameters;
-						//all good so far
-						parametersMap.put(paramType, parametersArr);
-					}
-				}
-				
-				
-			}
-
-			Iterator<String> fieldNames = containerNode.fieldNames();
-			while (fieldNames.hasNext()) {
-				String fieldName = fieldNames.next();
-				
-
-				JsonNode jsonNode = containerNode.get(fieldName);
-				if (jsonNode instanceof ContainerNode) {
-					buildPaths((ContainerNode) jsonNode, path + "/" + fieldName);
-				}
-			}
-
-		} else if (containerNode instanceof ArrayNode) {
-			ArrayNode arrayNode = (ArrayNode) containerNode;
-			int size = arrayNode.size();
-			for (int i = 0; i < size; i++) {
-				JsonNode jsonNode = arrayNode.get(i);
-				if (jsonNode instanceof ContainerNode) {
-					buildPaths((ContainerNode) jsonNode, path + "[" + i + "]");
-				}
-			}
-
-		}
-
 	}
 }
