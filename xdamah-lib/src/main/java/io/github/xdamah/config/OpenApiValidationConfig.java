@@ -60,9 +60,9 @@ public class OpenApiValidationConfig {
 	@PostConstruct
 	void init() {
 		if (customRequestValidator instanceof ICustomSchemaRegisty) {
-			ICustomSchemaRegisty initTarget = register();
+			ICustomSchemaRegisty customSchemaRegistry = register();
 
-			Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
+			Map<String, String> customSchemaImportMapping = customSchemaRegistry.getCustomSchemaImportMapping();
 			
 			for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
 
