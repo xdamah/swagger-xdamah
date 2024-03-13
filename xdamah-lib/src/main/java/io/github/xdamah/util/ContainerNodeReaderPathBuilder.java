@@ -50,7 +50,7 @@ public class ContainerNodeReaderPathBuilder {
 	}
 
 	ObjectMapper mapper = Json31.mapper();
-	private  void buildSchemas(String type, ObjectNode containerNode)
+	private  void buildModelSchemas(String type, ObjectNode containerNode)
 	{
 		
 		String fqn=modelPackageUtil.fqn(type);
@@ -87,9 +87,9 @@ public class ContainerNodeReaderPathBuilder {
 		
 	}
 
-	public void buildPaths(ContainerNode containerNode, String path) throws IOException {
+	public void buildPathsAndXdamahModels(ContainerNode containerNode, String path) throws IOException {
 		
-		
+		this.buildModels(containerNode);//dont worry about calling second time this is of use only in first cal
 
 		pathContainerNodeMap.put(path, containerNode);
 		if (containerNode instanceof ObjectNode) {
@@ -119,7 +119,7 @@ public class ContainerNodeReaderPathBuilder {
 
 				JsonNode jsonNode = containerNode.get(fieldName);
 				if (jsonNode instanceof ContainerNode) {
-					buildPaths((ContainerNode) jsonNode, path + "/" + fieldName);
+					buildPathsAndXdamahModels((ContainerNode) jsonNode, path + "/" + fieldName);
 				}
 			}
 
@@ -129,7 +129,7 @@ public class ContainerNodeReaderPathBuilder {
 			for (int i = 0; i < size; i++) {
 				JsonNode jsonNode = arrayNode.get(i);
 				if (jsonNode instanceof ContainerNode) {
-					buildPaths((ContainerNode) jsonNode, path + "[" + i + "]");
+					buildPathsAndXdamahModels((ContainerNode) jsonNode, path + "[" + i + "]");
 				}
 			}
 
@@ -158,7 +158,7 @@ public class ContainerNodeReaderPathBuilder {
 							if(asText!=null)
 							{
 								asText=asText.trim();
-								buildSchemas(asText, (ObjectNode) containerNode);
+								buildModelSchemas(asText, (ObjectNode) containerNode);
 							}
 						}
 						else
@@ -176,7 +176,7 @@ public class ContainerNodeReaderPathBuilder {
 					if(asText!=null)
 					{
 						asText=asText.trim();
-						buildSchemas(asText, (ObjectNode) containerNode);
+						buildModelSchemas(asText, (ObjectNode) containerNode);
 					}
 
 
@@ -186,11 +186,11 @@ public class ContainerNodeReaderPathBuilder {
 				{
 					
 				}
-				((ObjectNode) containerNode).remove(DamahExtns.X_DAMAH_MODELS);
+				
 			
 			}
 			
-			
+			((ObjectNode) containerNode).remove(DamahExtns.X_DAMAH_MODELS);
 		}
 	}
 }
