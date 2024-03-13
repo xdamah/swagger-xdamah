@@ -60,106 +60,7 @@ public class OpenApiValidationConfig {
 	@PostConstruct
 	void init() {
 		if (customRequestValidator instanceof ICustomSchemaRegisty) {
-			ICustomSchemaRegisty initTarget = (ICustomSchemaRegisty) customRequestValidator;
-			initTarget.onInitRegisterCustomSchemas();
-
-			Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer = new Jackson2ObjectMapperBuilderCustomizer() {
-
-				@Override
-				public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
-					List<SimpleModule> modules = new ArrayList<>();
-					Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
-					for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
-						String value = customSchemaImportMappingEntry.getValue();
-						try {
-							Class c = Class.forName(value);
-							boolean used = false;
-							SimpleModule module = new SimpleModule(c.getName() + "Module");
-							String[] beanNamesForType = context.getBeanNamesForType(Converter.class);
-							boolean toStringFromCustomFound = false;
-							boolean toCustomFromStringFound = false;
-							for (String beanName : beanNamesForType) {
-								logger.debug("---beanName=" + beanName);
-								Object bean = context.getBean(beanName);
-								Class<? extends Object> beanClass = bean.getClass();
-								Class<?>[] interfaces = beanClass.getInterfaces();
-
-								Type[] genericInterfaces = beanClass.getGenericInterfaces();
-
-								for (Type genericInterface : genericInterfaces) {
-
-									if (genericInterface instanceof ParameterizedType) {
-										ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
-										Type rawType = parameterizedType.getRawType();
-										if (rawType == Converter.class) {
-											logger.debug("rawType=" + rawType.getTypeName() + ",.class="
-													+ rawType.getClass().getName());
-											Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-											if (actualTypeArguments != null && actualTypeArguments.length == 2) {
-												if (actualTypeArguments[0] == c
-														&& actualTypeArguments[1] == String.class) {
-													toStringFromCustomFound = true;
-												} else if (actualTypeArguments[0] == String.class
-														&& actualTypeArguments[1] == c) {
-													toCustomFromStringFound = true;
-												}
-											}
-
-										}
-
-									}
-
-									logger.debug("genericInterface=" + genericInterface.getTypeName() + ".class="
-											+ genericInterface.getClass().getName());
-								}
-
-								if (toStringFromCustomFound && toCustomFromStringFound) {
-									break;
-								}
-
-							}
-							if (!toStringFromCustomFound) {
-								logger.error("Missing converter for " + c.getName() + " to String.class");
-							}
-							if (!toCustomFromStringFound) {
-								logger.error("Missing converter for String.class to " + c.getName());
-							}
-
-							if (!conversionService.canConvert(String.class, c)) {
-								logger.error("missing converter for String.class to " + c.getName());
-							} else {
-								module.addDeserializer(c, new ConversionServiceBasedDeserializer(c, conversionService));
-								used = true;
-							}
-							logger.debug("-------conversionService=" + conversionService.getClass().getName());
-
-							if (!conversionService.canConvert(c, String.class)) {
-								logger.error("missing converter for " + c.getName() + " to String.class");
-							} else {
-								module.addSerializer(c, new ConversionServiceBasedSerializer(c, conversionService));
-								used = true;
-							}
-							if (used) {
-								modules.add(module);
-							}
-						} catch (ClassNotFoundException e) {
-							logger.error("class not found", e);
-						}
-					}
-					Module[] modulesArr = new Module[modules.size()];
-					modules.toArray(modulesArr);
-					jacksonObjectMapperBuilder.modulesToInstall(modulesArr);
-
-					mapper.setSerializationInclusion(Include.NON_NULL);
-
-					mapper.registerModules(modulesArr);
-
-				}
-			};
-
-			context.registerBean(Jackson2ObjectMapperBuilderCustomizer.class,
-					() -> jackson2ObjectMapperBuilderCustomizer);
-			logger.debug("!!!!context=" + context.getClass().getName());
+			ICustomSchemaRegisty initTarget = register();
 
 			Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
 			
@@ -179,6 +80,110 @@ public class OpenApiValidationConfig {
 			}
 
 		}
+	}
+
+	private ICustomSchemaRegisty register() {
+		ICustomSchemaRegisty initTarget = (ICustomSchemaRegisty) customRequestValidator;
+		initTarget.onInitRegisterCustomSchemas();
+
+		Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer = new Jackson2ObjectMapperBuilderCustomizer() {
+
+			@Override
+			public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
+				List<SimpleModule> modules = new ArrayList<>();
+				Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
+				for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
+					String value = customSchemaImportMappingEntry.getValue();
+					try {
+						Class c = Class.forName(value);
+						boolean used = false;
+						SimpleModule module = new SimpleModule(c.getName() + "Module");
+						String[] beanNamesForType = context.getBeanNamesForType(Converter.class);
+						boolean toStringFromCustomFound = false;
+						boolean toCustomFromStringFound = false;
+						for (String beanName : beanNamesForType) {
+							logger.debug("---beanName=" + beanName);
+							Object bean = context.getBean(beanName);
+							Class<? extends Object> beanClass = bean.getClass();
+							Class<?>[] interfaces = beanClass.getInterfaces();
+
+							Type[] genericInterfaces = beanClass.getGenericInterfaces();
+
+							for (Type genericInterface : genericInterfaces) {
+
+								if (genericInterface instanceof ParameterizedType) {
+									ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+									Type rawType = parameterizedType.getRawType();
+									if (rawType == Converter.class) {
+										logger.debug("rawType=" + rawType.getTypeName() + ",.class="
+												+ rawType.getClass().getName());
+										Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+										if (actualTypeArguments != null && actualTypeArguments.length == 2) {
+											if (actualTypeArguments[0] == c
+													&& actualTypeArguments[1] == String.class) {
+												toStringFromCustomFound = true;
+											} else if (actualTypeArguments[0] == String.class
+													&& actualTypeArguments[1] == c) {
+												toCustomFromStringFound = true;
+											}
+										}
+
+									}
+
+								}
+
+								logger.debug("genericInterface=" + genericInterface.getTypeName() + ".class="
+										+ genericInterface.getClass().getName());
+							}
+
+							if (toStringFromCustomFound && toCustomFromStringFound) {
+								break;
+							}
+
+						}
+						if (!toStringFromCustomFound) {
+							logger.error("Missing converter for " + c.getName() + " to String.class");
+						}
+						if (!toCustomFromStringFound) {
+							logger.error("Missing converter for String.class to " + c.getName());
+						}
+
+						if (!conversionService.canConvert(String.class, c)) {
+							logger.error("missing converter for String.class to " + c.getName());
+						} else {
+							module.addDeserializer(c, new ConversionServiceBasedDeserializer(c, conversionService));
+							used = true;
+						}
+						logger.debug("-------conversionService=" + conversionService.getClass().getName());
+
+						if (!conversionService.canConvert(c, String.class)) {
+							logger.error("missing converter for " + c.getName() + " to String.class");
+						} else {
+							module.addSerializer(c, new ConversionServiceBasedSerializer(c, conversionService));
+							used = true;
+						}
+						if (used) {
+							modules.add(module);
+						}
+					} catch (ClassNotFoundException e) {
+						logger.error("class not found", e);
+					}
+				}
+				Module[] modulesArr = new Module[modules.size()];
+				modules.toArray(modulesArr);
+				jacksonObjectMapperBuilder.modulesToInstall(modulesArr);
+
+				mapper.setSerializationInclusion(Include.NON_NULL);
+
+				mapper.registerModules(modulesArr);
+
+			}
+		};
+
+		context.registerBean(Jackson2ObjectMapperBuilderCustomizer.class,
+				() -> jackson2ObjectMapperBuilderCustomizer);
+		logger.debug("!!!!context=" + context.getClass().getName());
+		return initTarget;
 	}
 
 	/*
