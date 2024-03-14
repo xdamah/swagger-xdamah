@@ -1,5 +1,6 @@
 package io.github.xdamah.config;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -40,6 +42,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 	@Value("${xdamah.validator.enabled:true}")
 	boolean validatorEnabled = true;
 	@Autowired
+	@Lazy
 	OpenAPI openApi;
 	@Autowired
 	ObjectMapper mapper;
@@ -50,29 +53,38 @@ public class WebConfiguration implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		if (validatorEnabled) {
-			ValidationErrorsWhitelist whitelist = ValidationErrorsWhitelist.create();
-
-			// whitelist = allowCustomTypes(whitelist);
-			whitelist = reqBodySchemaOneOfAnother(whitelist);
-			whitelist = reqBodySchemaOneOf(whitelist);
-			whitelist = additionalProperties(whitelist);
-			whitelist = allowStringIntegerFormFieldType(whitelist);
-			whitelist = customTypeWithFqn(whitelist);
-			whitelist = allowSchemaUnknownXml(whitelist);
-			whitelist = allowStringForObject(whitelist);
-			whitelist =allowFormatDateTime(whitelist);
-			OpenApiInteractionValidator validator = OpenApiInteractionValidator.createFor(openApi)
-
-					.withCustomRequestValidation(customRequestValidator)
-					.withLevelResolver(SpringMVCLevelResolverFactory.create()).withWhitelist(whitelist).build();
-
-			final DamahOpenApiValidationInterceptor openApiValidationInterceptor = new DamahOpenApiValidationInterceptor(
-					validator);
+		
+		//try {
 			
 			
-			registry.addInterceptor(openApiValidationInterceptor);
-		}
+			if (validatorEnabled) {
+				ValidationErrorsWhitelist whitelist = ValidationErrorsWhitelist.create();
+
+				// whitelist = allowCustomTypes(whitelist);
+				whitelist = reqBodySchemaOneOfAnother(whitelist);
+				whitelist = reqBodySchemaOneOf(whitelist);
+				whitelist = additionalProperties(whitelist);
+				whitelist = allowStringIntegerFormFieldType(whitelist);
+				whitelist = customTypeWithFqn(whitelist);
+				whitelist = allowSchemaUnknownXml(whitelist);
+				whitelist = allowStringForObject(whitelist);
+				whitelist =allowFormatDateTime(whitelist);
+				OpenApiInteractionValidator validator = OpenApiInteractionValidator.createFor(openApi)
+
+						.withCustomRequestValidation(customRequestValidator)
+						.withLevelResolver(SpringMVCLevelResolverFactory.create()).withWhitelist(whitelist).build();
+
+				final DamahOpenApiValidationInterceptor openApiValidationInterceptor = new DamahOpenApiValidationInterceptor(
+						validator);
+				
+				
+				registry.addInterceptor(openApiValidationInterceptor);
+			}
+			
+//		} catch (IOException e) {
+//			throw new RuntimeException("Problem addinginterceptors", e);
+//		}
+		
 	}
 	
 	private ValidationErrorsWhitelist allowFormatDateTime(ValidationErrorsWhitelist whitelist) {

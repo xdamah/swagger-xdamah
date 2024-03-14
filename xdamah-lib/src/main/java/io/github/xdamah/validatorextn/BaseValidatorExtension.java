@@ -63,7 +63,7 @@ public abstract class BaseValidatorExtension
 		implements CustomRequestValidator, ICustomSchemaRegisty {
 	private static final Logger logger = LoggerFactory.getLogger(BaseValidatorExtension.class);
 	private Map<String, String> customSchemasImportMapping = new HashMap<>();
-	@Autowired
+
 	private OpenAPI openApi;
 	@Autowired
 	ModelPackageUtil modelPackageUtil;
@@ -318,6 +318,10 @@ public abstract class BaseValidatorExtension
 
 	public <E> void registerCustomSchema(String customSchema, String importedTypeName) {
 		customSchemasImportMapping.put(customSchema, importedTypeName);
+	}
+
+	public void setOpenApi(OpenAPI openApi) {
+		this.openApi = openApi;
 	}
 
 	
