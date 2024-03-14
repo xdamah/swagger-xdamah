@@ -145,7 +145,7 @@ public class OpenApiConfig  {
 		JsonNode firstTree = jsonMapper.readTree(new File("api-docs.json"));
 		// doingmodifid this because was unable to save the openApi object where the
 		// json is in same order as original
-		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil);
+		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil, customSchemaRegistry);
 		
 		
 		
@@ -158,7 +158,7 @@ public class OpenApiConfig  {
 		// firstTree ready for parsing
 
 		JsonNode secondTree = firstTree.deepCopy();
-		pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil);
+		pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil, customSchemaRegistry);
 		pathBuilder.buildPathsAndXdamahModels((ContainerNode) secondTree, "");
 		
 		ContainerNodeModifier modifier = new ContainerNodeModifier(
@@ -210,7 +210,6 @@ public class OpenApiConfig  {
 	}
 	
 	@Bean
-	@Order(3)
 	public Filter validationFilter() {
 		return new OpenApiValidationFilter(validatorEnabled, // enable request validation
 				false // enable response validation

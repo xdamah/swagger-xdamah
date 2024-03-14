@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import io.github.xdamah.config.ICustomSchemaRegisty;
 import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.constants.DamahExtns;
 import io.swagger.v3.core.converter.AnnotatedType;
@@ -35,10 +36,12 @@ public class ContainerNodeReaderPathBuilder {
 	private Map<String, ArrayNode> parametersMap = new LinkedHashMap<>();
 	
 	private ModelPackageUtil modelPackageUtil;
+	private ICustomSchemaRegisty customSchemaRegistry;
 
-	public ContainerNodeReaderPathBuilder(ModelPackageUtil modelPackageUtil) {
+	public ContainerNodeReaderPathBuilder(ModelPackageUtil modelPackageUtil, ICustomSchemaRegisty customSchemaRegistry) {
 		super();
 		this.modelPackageUtil = modelPackageUtil;
+		this.customSchemaRegistry= customSchemaRegistry;
 	}
 
 	public Map<String, ArrayNode> getParametersMap() {
@@ -56,14 +59,33 @@ public class ContainerNodeReaderPathBuilder {
 		String fqn=modelPackageUtil.fqn(type);
 		try {
 			Class<?> forName = Class.forName(fqn);
+			
 			ResolvedSchema resolveAsResolvedSchema = ModelConverters.getInstance().resolveAsResolvedSchema(new AnnotatedType(forName));
 			Map<String, Schema> schemaMap=resolveAsResolvedSchema.referencedSchemas;
 			Set<String> keySet = schemaMap.keySet();
 			for (String key : keySet) {
+				
+				boolean forNameIsIncustomSchemaImportMapping=false;
+				Map<String, String> customSchemaImportMapping = this.customSchemaRegistry.getCustomSchemaImportMapping();
+				if(modelPackageUtil.isForFqn())
+				{
+					throw new RuntimeException("Implement soon");
+				}
+				else
+				{
+					for (String importMappingKey : customSchemaImportMapping.keySet()) {
+						if(importMappingKey.equals(key))
+						{
+							forNameIsIncustomSchemaImportMapping=true;
+							break;
+						}
+					}
+				}
+				
 				Schema schema = schemaMap.get(key);
 
 				try {
-					String s = mapper.writerFor(Schema.class).writeValueAsString(schema);
+					String s = forNameIsIncustomSchemaImportMapping?"{\"type\":\"object\"}":mapper.writerFor(Schema.class).writeValueAsString(schema);
 					ObjectNode readValue = mapper.readerFor(ObjectNode.class).readValue(s);
 					JsonNode jsonNode = containerNode.get(key);
 					//here we ensure that we dont overwrite what is there in the json
