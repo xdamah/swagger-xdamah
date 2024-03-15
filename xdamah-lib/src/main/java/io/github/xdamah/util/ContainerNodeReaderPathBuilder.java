@@ -20,15 +20,10 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import io.github.xdamah.config.ICustomSchemaRegisty;
 import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.constants.DamahExtns;
-import io.github.xdamah.modelconverter.ByteArrayPropertyConverter;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.core.util.Json31;
-
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class ContainerNodeReaderPathBuilder {

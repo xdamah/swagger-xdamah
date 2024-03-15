@@ -8,8 +8,8 @@ import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.util.Json;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.ByteArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 
 public class ByteArrayPropertyConverter implements ModelConverter {
 

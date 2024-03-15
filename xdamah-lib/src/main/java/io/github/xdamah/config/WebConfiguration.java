@@ -1,6 +1,5 @@
 package io.github.xdamah.config;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +48,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 	@Autowired
 	CustomRequestValidator customRequestValidator;
 	
+
 
 
 	@Override

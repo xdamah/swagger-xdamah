@@ -13,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 
 import com.atlassian.oai.validator.interaction.request.CustomRequestValidator;
@@ -28,11 +27,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+
 import io.github.xdamah.config.ICustomSchemaRegisty;
 import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.config.NonSpringHolder;
 import io.github.xdamah.constants.Constants;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Content;

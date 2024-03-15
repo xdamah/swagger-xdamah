@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,16 +19,8 @@ import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.constants.DamahExtns;
-
-import io.swagger.v3.core.converter.ModelConverters;
-
-import io.swagger.v3.core.util.Json31;
-import io.swagger.v3.core.converter.AnnotatedType;
-import io.swagger.v3.core.converter.ResolvedSchema;
 import io.swagger.v3.oas.models.PathItem.HttpMethod;
-import io.swagger.v3.oas.models.media.Schema;
 
 public class ContainerNodeModifier {
 	private static final Logger logger = LoggerFactory.getLogger(ContainerNodeModifier.class);

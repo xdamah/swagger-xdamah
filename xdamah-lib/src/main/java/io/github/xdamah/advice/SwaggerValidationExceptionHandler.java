@@ -1,6 +1,10 @@
 package io.github.xdamah.advice;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.atlassian.oai.validator.report.JsonValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
@@ -23,7 +26,8 @@ import com.atlassian.oai.validator.springmvc.InvalidRequestException;
 
 @ControllerAdvice()
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class SwaggerValidationExceptionHandler extends ResponseEntityExceptionHandler {
+public class SwaggerValidationExceptionHandler {//extends ResponseEntityExceptionHandler 
+
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerValidationExceptionHandler.class);
 
 	private final ValidationReportFormat validationReportFormat = JsonValidationReportFormat.getInstance();
