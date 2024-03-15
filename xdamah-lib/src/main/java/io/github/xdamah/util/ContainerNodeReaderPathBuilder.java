@@ -35,13 +35,7 @@ public class ContainerNodeReaderPathBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(ContainerNodeReaderPathBuilder.class);
 	private Map<String, ContainerNode> pathContainerNodeMap = new LinkedHashMap<>();
 	private Map<String, ArrayNode> parametersMap = new LinkedHashMap<>();
-	private  static ModelConverters instance = build();
 
-	private static ModelConverters build() {
-		ModelConverters instance2 = ModelConverters.getInstance();
-		instance2.addConverter(new ByteArrayPropertyConverter());
-		return instance2;
-	}
 	
 	private ModelPackageUtil modelPackageUtil;
 	private ICustomSchemaRegisty customSchemaRegistry;
@@ -68,7 +62,7 @@ public class ContainerNodeReaderPathBuilder {
 		try {
 			Class<?> forName = Class.forName(fqn);
 			
-			ResolvedSchema resolveAsResolvedSchema = instance.resolveAsResolvedSchema(new AnnotatedType(forName));
+			ResolvedSchema resolveAsResolvedSchema = ModelConverters.getInstance().resolveAsResolvedSchema(new AnnotatedType(forName));
 			Map<String, Schema> schemaMap=resolveAsResolvedSchema.referencedSchemas;
 			Set<String> keySet = schemaMap.keySet();
 			for (String key : keySet) {
