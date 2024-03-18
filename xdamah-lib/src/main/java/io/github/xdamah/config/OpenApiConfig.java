@@ -140,8 +140,8 @@ public class OpenApiConfig  {
 		
 		swaggerController.setModifiedJson(modified);
 		// String modified = jsonMapper.writeValueAsString(readTree);
-		jsonMapper.writeValue(new File("api-docs-check.json"), secondTree);
-		String swaggerContent = jsonMapper.writeValueAsString(firstTree);
+		jsonMapper.writerWithDefaultPrettyPrinter().writeValue(new File("api-docs-check.json"), secondTree);
+		String swaggerContent = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(firstTree);
 		FileUtils.write(new File("api-docs-firstTree.json"), swaggerContent);
 		// OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
 		OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
