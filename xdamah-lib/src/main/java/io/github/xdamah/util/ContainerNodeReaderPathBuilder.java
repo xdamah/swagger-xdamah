@@ -61,12 +61,21 @@ public class ContainerNodeReaderPathBuilder {
 			Map<String, Schema> schemaMap=resolveAsResolvedSchema.referencedSchemas;
 			Set<String> keySet = schemaMap.keySet();
 			for (String key : keySet) {
-				
+				Schema schema = schemaMap.get(key);
 				boolean forNameIsIncustomSchemaImportMapping=false;
 				Map<String, String> customSchemaImportMapping = this.customSchemaRegistry.getCustomSchemaImportMapping();
 				if(modelPackageUtil.isForFqn())
 				{
-					throw new RuntimeException("Implement soon");
+					System.out.println("****key="+key+",name="+schema.getName()+",ref="+schema.get$ref());
+					for (String importMappingKey : customSchemaImportMapping.keySet()) {
+						String importMappingVal = customSchemaImportMapping.get(importMappingKey);
+						System.out.println("importMappingKey="+importMappingKey+",importMappingVal="+importMappingVal);
+						if(key.equals(importMappingVal))
+						{
+							forNameIsIncustomSchemaImportMapping=true;
+							break;
+						}
+					}
 				}
 				else
 				{
@@ -79,7 +88,7 @@ public class ContainerNodeReaderPathBuilder {
 					}
 				}
 				
-				Schema schema = schemaMap.get(key);
+				
 
 				try {
 					String s = forNameIsIncustomSchemaImportMapping?"{\"type\":\"object\"}":mapper.writerFor(Schema.class).writeValueAsString(schema);

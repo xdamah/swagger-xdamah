@@ -162,7 +162,8 @@ public class RequestBodyBuilder {
 													io.github.xdamah.constants.Constants.COMPONENTS_SCHEMA_PREFIX1)) {
 										String classnameIfUnderFqnElseSimpleClassName = modelPackageUtil
 												.classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(ref);
-										if (classnameIfUnderFqnElseSimpleClassName.equals(discriminator)) {
+										String fqnToSimpleClassName = modelPackageUtil.fqnToSimpleClassName(classnameIfUnderFqnElseSimpleClassName);
+										if (fqnToSimpleClassName.equals(discriminator)) {
 											classSimpleNmae = classnameIfUnderFqnElseSimpleClassName;
 											break;
 										}
