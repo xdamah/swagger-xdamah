@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.atlassian.oai.validator.report.JsonValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
@@ -31,6 +32,8 @@ public class SwaggerValidationExceptionHandler {//extends ResponseEntityExceptio
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerValidationExceptionHandler.class);
 
 	private final ValidationReportFormat validationReportFormat = JsonValidationReportFormat.getInstance();
+	
+	
 
 	@ExceptionHandler(InvalidRequestException.class)
 	public ResponseEntity<String> handle(final InvalidRequestException invalidRequestException) {
@@ -54,7 +57,7 @@ public class SwaggerValidationExceptionHandler {//extends ResponseEntityExceptio
 
 		return responseEntity;
 	}
-
+	
 	@ExceptionHandler(Exception.class)
 
 	public ResponseEntity<Map<String, String>> handle(final Exception e) {
@@ -68,6 +71,21 @@ public class SwaggerValidationExceptionHandler {//extends ResponseEntityExceptio
 
 		map.put("problem", msg);
 		return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+
+	public ResponseEntity<Map<String, String>> handle(final NoResourceFoundException e) {
+		Map<String, String> map = new HashMap<>();
+
+		UUID uuid = UUID.randomUUID();
+		String logRef = uuid.toString();
+		String msg = "Unexpected problem happened. Note refID=" + logRef;
+
+		logger.error(msg, e);
+
+		map.put("problem", msg);
+		return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
 	}
 
 }
