@@ -93,6 +93,9 @@ public class OpenApiConfig  {
 	
 	@Value("${xdamah.validator.enabled:true}")
 	boolean validatorEnabled = true;
+	
+	@Value("${xdamah.actualschemas.show:false}")
+	boolean showActualSchemas = false;
 
 
 	@Bean
@@ -140,9 +143,15 @@ public class OpenApiConfig  {
 		
 		swaggerController.setModifiedJson(modified);
 		// String modified = jsonMapper.writeValueAsString(readTree);
-		jsonMapper.writerWithDefaultPrettyPrinter().writeValue(new File("api-docs-check.json"), secondTree);
+		if(showActualSchemas)
+		{
+			jsonMapper.writerWithDefaultPrettyPrinter().writeValue(new File("api-docs-check.json"), secondTree);
+		}
 		String swaggerContent = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(firstTree);
-		FileUtils.write(new File("api-docs-firstTree.json"), swaggerContent);
+		if(showActualSchemas)
+		{
+			FileUtils.write(new File("api-docs-firstTree.json"), swaggerContent);
+		}
 		// OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
 		OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
 		// saveUsingParserJustToSeeDifference(openApi);
