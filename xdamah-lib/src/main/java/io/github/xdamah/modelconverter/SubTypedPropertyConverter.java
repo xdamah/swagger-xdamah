@@ -77,11 +77,11 @@ public class SubTypedPropertyConverter implements ModelConverter {
 										refToAdd=entry.getKey();
 									}
 								}
-            					System.out.println(refToAdd);
+            					
             				
             					oneOfSchemaItem.addOneOfItem(new Schema().$ref("#/components/schemas/"+refToAdd));
             					
-            					System.out.println("got it");
+            					
             					
 							}
             				return arraySchema;

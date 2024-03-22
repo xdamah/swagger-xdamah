@@ -66,10 +66,10 @@ public class ContainerNodeReaderPathBuilder {
 				Map<String, String> customSchemaImportMapping = this.customSchemaRegistry.getCustomSchemaImportMapping();
 				if(modelPackageUtil.isForFqn())
 				{
-					System.out.println("****key="+key+",name="+schema.getName()+",ref="+schema.get$ref());
+					
 					for (String importMappingKey : customSchemaImportMapping.keySet()) {
 						String importMappingVal = customSchemaImportMapping.get(importMappingKey);
-						System.out.println("importMappingKey="+importMappingKey+",importMappingVal="+importMappingVal);
+						
 						if(key.equals(importMappingVal))
 						{
 							forNameIsIncustomSchemaImportMapping=true;
