@@ -14,6 +14,17 @@ public class ModelPackageUtil {
 	public String fqn(String classnameIfUnderFqnElseSimpleClassName) {
 		return modelPackage==null? classnameIfUnderFqnElseSimpleClassName:modelPackage+ "." + classnameIfUnderFqnElseSimpleClassName;
 	}
+	
+	public String fqnToSimpleClassName(String classnameIfUnderFqnElseSimpleClassName) {
+		String ret=classnameIfUnderFqnElseSimpleClassName;
+		int lastIndex=classnameIfUnderFqnElseSimpleClassName.lastIndexOf('.');
+		if(lastIndex!=-1)
+		{
+			ret=classnameIfUnderFqnElseSimpleClassName.substring(lastIndex+1);
+		}
+		
+		return ret;
+	}
 
 	public String classnameIfUnderFqnElseSimpleClassNameFromComponentSchemaRef(String ref) {
 		return ref.substring(Constants.COMPONENTS_SCHEMA_PREFIX_LENGTH);

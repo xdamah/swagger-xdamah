@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -12,10 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 
 import io.github.xdamah.config.ModelPackageUtil;
 import io.github.xdamah.util.MyPropertyUtils;
@@ -23,7 +23,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.core.io.*;
 
 public class FormProcessor {
 	private static final Logger logger = LoggerFactory.getLogger(FormProcessor.class);

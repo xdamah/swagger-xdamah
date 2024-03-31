@@ -1,39 +1,57 @@
 package io.github.xdamah.config;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Iterator;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.EncodedResource;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import com.atlassian.oai.validator.interaction.request.CustomRequestValidator;
+import com.atlassian.oai.validator.springmvc.OpenApiValidationFilter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ContainerNode;
+
+import io.github.xdamah.custom.ConversionServiceBasedDeserializer;
+import io.github.xdamah.custom.ConversionServiceBasedSerializer;
 import io.github.xdamah.swagger.SwaggerController;
-import io.github.xdamah.util.*;
+import io.github.xdamah.util.ContainerNodeCommonModifier;
+import io.github.xdamah.util.ContainerNodeModifier;
+import io.github.xdamah.util.ContainerNodeReaderPathBuilder;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.PathItem.HttpMethod;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.PathItem.HttpMethod;
-import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.parser.ObjectMapperFactory;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -41,29 +59,13 @@ import io.swagger.v3.parser.core.extensions.SwaggerParserExtension;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-import jakarta.servlet.ServletContext;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ContainerNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.*;
+import jakarta.servlet.Filter;
 
 @Configuration
-public class OpenApiConfig {
+
+public class OpenApiConfig  {
 	private static final Logger logger = LoggerFactory.getLogger(OpenApiConfig.class);
+	
 
 	@Autowired
 	SwaggerController swaggerController;
@@ -72,11 +74,39 @@ public class OpenApiConfig {
 	ResourceLoader resourceLoader;
 
 	private ObjectMapper jsonMapper;
+	
+	@Autowired
+	ObjectMapper mapper;
+	
+	@Autowired
+	private ModelPackageUtil modelPackageUtil;
+	
+	@Autowired
+	CustomRequestValidator customRequestValidator;
+	@Autowired
+	GenericApplicationContext context;
+	
+	@Autowired
+	private ConversionService conversionService;
+
+	private ICustomSchemaRegisty customSchemaRegistry;
+	
+	@Value("${xdamah.validator.enabled:true}")
+	boolean validatorEnabled = true;
+	
+	@Value("${xdamah.actualschemas.show:false}")
+	boolean showActualSchemas = false;
+
 
 	@Bean
+
 	OpenAPI openApi() throws IOException {
 
+		
 		logger.debug("invoked openApi()");
+		if (customRequestValidator instanceof ICustomSchemaRegisty) {
+			customSchemaRegistry = register();
+		}
 		OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 		final ParseOptions options = new ParseOptions();
 		options.setResolve(true);
@@ -87,8 +117,11 @@ public class OpenApiConfig {
 		JsonNode firstTree = jsonMapper.readTree(new File("api-docs.json"));
 		// doingmodifid this because was unable to save the openApi object where the
 		// json is in same order as original
-		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder();
-		pathBuilder.buildPaths((ContainerNode) firstTree, "");
+		ContainerNodeReaderPathBuilder pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil, customSchemaRegistry);
+		
+		
+		
+		pathBuilder.buildPathsAndXdamahModels((ContainerNode) firstTree, "");
 		ContainerNodeCommonModifier firstModifier = new ContainerNodeCommonModifier(
 				pathBuilder.getPathContainerNodeMap(), pathBuilder.getParametersMap() , 
 				resourceLoader, jsonMapper);
@@ -97,26 +130,71 @@ public class OpenApiConfig {
 		// firstTree ready for parsing
 
 		JsonNode secondTree = firstTree.deepCopy();
-		pathBuilder = new ContainerNodeReaderPathBuilder();
-		pathBuilder.buildPaths((ContainerNode) secondTree, "");
+		pathBuilder = new ContainerNodeReaderPathBuilder(modelPackageUtil, customSchemaRegistry);
+		pathBuilder.buildPathsAndXdamahModels((ContainerNode) secondTree, "");
+		
 		ContainerNodeModifier modifier = new ContainerNodeModifier(
 				pathBuilder.getPathContainerNodeMap(),
 				pathBuilder.getParametersMap() ,
 				resourceLoader, jsonMapper);
 		modifier.modify((ContainerNode) secondTree, "");
+		
 		byte[] modified = jsonMapper.writeValueAsBytes(secondTree);
+		
 		swaggerController.setModifiedJson(modified);
 		// String modified = jsonMapper.writeValueAsString(readTree);
-		jsonMapper.writeValue(new File("api-docs-check.json"), secondTree);
-		String swaggerContent = jsonMapper.writeValueAsString(firstTree);
+		if(showActualSchemas)
+		{
+			jsonMapper.writerWithDefaultPrettyPrinter().writeValue(new File("api-docs-check.json"), secondTree);
+		}
+		String swaggerContent = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(firstTree);
+		if(showActualSchemas)
+		{
+			FileUtils.write(new File("api-docs-firstTree.json"), swaggerContent);
+		}
 		// OpenAPI openApi = openAPIV3Parser.read("api-docs.json", null, options);
 		OpenAPI openApi = this.read(swaggerContent, null, options, openAPIV3Parser);
 		// saveUsingParserJustToSeeDifference(openApi);
 		paramsToTypes(openApi);
-
+		customSchemaRegistry.setOpenApi(openApi);
+		
+		setCustomSchemaTypeToString(openApi);
+		
 		return openApi;
 
 	}
+
+	private void setCustomSchemaTypeToString(OpenAPI openApi) {
+		if (customRequestValidator instanceof ICustomSchemaRegisty) {
+					
+					Map<String, String> customSchemaImportMapping = customSchemaRegistry.getCustomSchemaImportMapping();
+					
+					for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
+		
+						Schema schema = openApi.getComponents().getSchemas().get(customSchemaImportMappingEntry.getKey());
+						if (schema != null) {
+							schema.setType("string");
+							Map<String, Object> extensions = schema.getExtensions();
+							if (extensions == null) {
+								extensions = new LinkedHashMap<String, Object>();
+								schema.setExtensions(extensions);
+							}
+							extensions.put("x-imported-type", customSchemaImportMappingEntry.getValue());
+						}
+		
+					}
+		
+				}
+	}
+	
+	@Bean
+	public Filter validationFilter() {
+		return new OpenApiValidationFilter(validatorEnabled, // enable request validation
+				false // enable response validation
+		);
+	}
+	
+	
 
 	public OpenAPI read(String swaggerAsString, List<AuthorizationValue> auths, ParseOptions resolve,
 			OpenAPIV3Parser openAPIV3Parser) {
@@ -239,5 +317,113 @@ public class OpenApiConfig {
 		}
 
 	}
+	
+	private ICustomSchemaRegisty register() {
+		ICustomSchemaRegisty initTarget = (ICustomSchemaRegisty) customRequestValidator;
+		initTarget.onInitRegisterCustomSchemas();
+
+		Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer = new Jackson2ObjectMapperBuilderCustomizer() {
+
+			@Override
+			public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
+				List<SimpleModule> modules = new ArrayList<>();
+				Map<String, String> customSchemaImportMapping = initTarget.getCustomSchemaImportMapping();
+				for (Entry<String, String> customSchemaImportMappingEntry : customSchemaImportMapping.entrySet()) {
+					String value = customSchemaImportMappingEntry.getValue();
+					try {
+						Class c = Class.forName(value);
+						boolean used = false;
+						SimpleModule module = new SimpleModule(c.getName() + "Module");
+						String[] beanNamesForType = context.getBeanNamesForType(Converter.class);
+						boolean toStringFromCustomFound = false;
+						boolean toCustomFromStringFound = false;
+						for (String beanName : beanNamesForType) {
+							logger.debug("---beanName=" + beanName);
+							Object bean = context.getBean(beanName);
+							Class<? extends Object> beanClass = bean.getClass();
+							Class<?>[] interfaces = beanClass.getInterfaces();
+
+							Type[] genericInterfaces = beanClass.getGenericInterfaces();
+
+							for (Type genericInterface : genericInterfaces) {
+
+								if (genericInterface instanceof ParameterizedType) {
+									ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+									Type rawType = parameterizedType.getRawType();
+									if (rawType == Converter.class) {
+										logger.debug("rawType=" + rawType.getTypeName() + ",.class="
+												+ rawType.getClass().getName());
+										Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+										if (actualTypeArguments != null && actualTypeArguments.length == 2) {
+											if (actualTypeArguments[0] == c
+													&& actualTypeArguments[1] == String.class) {
+												toStringFromCustomFound = true;
+											} else if (actualTypeArguments[0] == String.class
+													&& actualTypeArguments[1] == c) {
+												toCustomFromStringFound = true;
+											}
+										}
+
+									}
+
+								}
+
+								logger.debug("genericInterface=" + genericInterface.getTypeName() + ".class="
+										+ genericInterface.getClass().getName());
+							}
+
+							if (toStringFromCustomFound && toCustomFromStringFound) {
+								break;
+							}
+
+						}
+						if (!toStringFromCustomFound) {
+							logger.error("Missing converter for " + c.getName() + " to String.class");
+						}
+						if (!toCustomFromStringFound) {
+							logger.error("Missing converter for String.class to " + c.getName());
+						}
+
+						if (!conversionService.canConvert(String.class, c)) {
+							logger.error("missing converter for String.class to " + c.getName());
+						} else {
+							module.addDeserializer(c, new ConversionServiceBasedDeserializer(c, conversionService));
+							used = true;
+						}
+						logger.debug("-------conversionService=" + conversionService.getClass().getName());
+
+						if (!conversionService.canConvert(c, String.class)) {
+							logger.error("missing converter for " + c.getName() + " to String.class");
+						} else {
+							module.addSerializer(c, new ConversionServiceBasedSerializer(c, conversionService));
+							used = true;
+						}
+						if (used) {
+							modules.add(module);
+						}
+					} catch (ClassNotFoundException e) {
+						logger.error("class not found", e);
+					}
+				}
+				Module[] modulesArr = new Module[modules.size()];
+				modules.toArray(modulesArr);
+				jacksonObjectMapperBuilder.modulesToInstall(modulesArr);
+
+				mapper.setSerializationInclusion(Include.NON_NULL);
+
+				mapper.registerModules(modulesArr);
+
+			}
+		};
+
+		context.registerBean(Jackson2ObjectMapperBuilderCustomizer.class,
+				() -> jackson2ObjectMapperBuilderCustomizer);
+		logger.debug("!!!!context=" + context.getClass().getName());
+		return initTarget;
+	}
+
+	
+	//web configuration
+	
 
 }

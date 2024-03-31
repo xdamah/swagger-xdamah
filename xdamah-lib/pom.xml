@@ -36,6 +36,12 @@
 			<groupId>io.swagger.parser.v3</groupId>
 			<artifactId>swagger-parser-v3</artifactId>
 			<version>2.1.15</version>
+			<exclusions>
+				<exclusion>
+					<groupId>io.swagger.core.v3</groupId>
+					<artifactId>swagger-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		  <dependency>
             <groupId>com.atlassian.oai</groupId>
@@ -45,6 +51,10 @@
             	<exclusion>
             		<groupId>commons-logging</groupId>
             		<artifactId>commons-logging</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>io.swagger</groupId>
+            		<artifactId>swagger-core</artifactId>
             	</exclusion>
             </exclusions>
 		  </dependency>
@@ -64,5 +74,10 @@
 			<artifactId>xdamah-common</artifactId>	
 			 <version>${project.version}</version>
 			</dependency>
+			 <dependency>
+		   <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-core-jakarta</artifactId>
+        <version>2.2.19</version>
+	  </dependency>
 	</dependencies>
 </project>

@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileUrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SwaggerController {
+	
+	
 
 	private byte[] modifiedJson;
 

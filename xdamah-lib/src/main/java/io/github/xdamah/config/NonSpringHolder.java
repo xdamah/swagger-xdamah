@@ -1,24 +1,18 @@
 package io.github.xdamah.config;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.xdamah.constants.Constants;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NonSpringHolder {
 	private static final Logger logger = LoggerFactory.getLogger(NonSpringHolder.class);

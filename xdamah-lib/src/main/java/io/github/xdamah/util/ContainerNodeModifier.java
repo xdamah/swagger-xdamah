@@ -28,6 +28,7 @@ public class ContainerNodeModifier {
 	private Map<String, ArrayNode> parametersMap;
 	private ResourceLoader resourceLoader;
 	private ObjectMapper jsonMapper;
+	
 
 	public ContainerNodeModifier(Map<String, ContainerNode> pathContainerNodeMap, 
 			Map<String, ArrayNode> parametersMap,
@@ -38,6 +39,7 @@ public class ContainerNodeModifier {
 		this.parametersMap=parametersMap;
 		this.resourceLoader = resourceLoader;
 		this.jsonMapper = jsonMapper;
+		
 	}
 
 	public void modify(ContainerNode containerNode, String path) throws IOException {
@@ -53,6 +55,8 @@ public class ContainerNodeModifier {
 					modify((ContainerNode) jsonNode, path + "/" + fieldName);
 				}
 			}
+			
+		
 			
 			if (containerNode.has(DamahExtns.X_DAMAH_SERVICE)) {
 				((ObjectNode) containerNode).put(DamahExtns.X_DAMAH_SERVICE, "hidden");
@@ -126,7 +130,7 @@ public class ContainerNodeModifier {
 		}
 
 	}
-
+	
 	
 
 	private String isPossiblyAnOperation(String path) {
