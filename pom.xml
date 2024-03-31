@@ -21,7 +21,7 @@
 		<swagger-codegen-maven-plugin-version>3.0.48</swagger-codegen-maven-plugin-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<revision>1.0.4</revision>
+		<revision>1.0.4-SNAPSHOT</revision>
 		<!-- spring-boot-version used only in xdamah-lib -->
 		<spring-boot-version>3.2.2</spring-boot-version>
 
