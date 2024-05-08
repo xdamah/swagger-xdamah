@@ -42,6 +42,7 @@ import io.github.xdamah.swagger.SwaggerController;
 import io.github.xdamah.util.ContainerNodeCommonModifier;
 import io.github.xdamah.util.ContainerNodeModifier;
 import io.github.xdamah.util.ContainerNodeReaderPathBuilder;
+import io.github.xdamah.validatorextn.DoNothingValidatorExtension;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -59,6 +60,7 @@ import io.swagger.v3.parser.core.extensions.SwaggerParserExtension;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.Filter;
 
 @Configuration
@@ -81,8 +83,22 @@ public class OpenApiConfig  {
 	@Autowired
 	private ModelPackageUtil modelPackageUtil;
 	
-	@Autowired
+	@Autowired(required = false)
 	CustomRequestValidator customRequestValidator;
+	@Autowired
+	DoNothingValidatorExtension doNothingValidatorExtension;
+	
+	@PostConstruct
+	void init()
+	{
+		if(customRequestValidator==null)
+		{
+			customRequestValidator=doNothingValidatorExtension;
+		}
+		logger.info("customRequestValidator="+customRequestValidator.getClass().getName());
+	}
+	
+	
 	@Autowired
 	GenericApplicationContext context;
 	

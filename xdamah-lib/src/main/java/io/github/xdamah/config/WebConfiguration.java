@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -33,7 +34,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.NodeType;
 
+import io.github.xdamah.validatorextn.DoNothingValidatorExtension;
 import io.swagger.v3.oas.models.OpenAPI;
+import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
@@ -45,9 +48,21 @@ public class WebConfiguration implements WebMvcConfigurer {
 	OpenAPI openApi;
 	@Autowired
 	ObjectMapper mapper;
-	@Autowired
+	@Autowired(required = false)
 	CustomRequestValidator customRequestValidator;
 	
+	@Autowired
+	DoNothingValidatorExtension doNothingValidatorExtension;
+	
+	@PostConstruct
+	void init()
+	{
+		if(customRequestValidator==null)
+		{
+			customRequestValidator=doNothingValidatorExtension;
+		}
+		logger.info("customRequestValidator="+customRequestValidator.getClass().getName());
+	}
 
 
 
