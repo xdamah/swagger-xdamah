@@ -9,7 +9,10 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.models.media.Schema;
 
-//@Configuration
+/*
+ * Provided as a reference.
+ * Create similar class with other allowed packages and use
+ */
 public class CustomOpenApiValidator extends ModelResolver {
 
 	private final Class[] handledValidations = { jakarta.validation.constraints.NotNull.class,
