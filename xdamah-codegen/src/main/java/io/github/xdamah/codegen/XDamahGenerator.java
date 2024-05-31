@@ -169,77 +169,81 @@ public class XDamahGenerator extends DefaultGenerator {
 			if(parameters2!=null && parameters2.size()>1)//only then we create wrappers
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);//just the type name
-				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
+				if(extensions!=null)
 				{
-					//since this is to be a ref we dont need to create
-					//it will only be in schemas/
-					
-				}
-				else
-				{
-					//what to name as type
-					//if methodKeyset size is 1 need not use method name in typeName
-					//else typeName can be methodName+path/operationId+"Param"
-					//build the type looping through the params and add to schema
-					ObjectSchema objectSchema = new ObjectSchema();
-					objectSchema.addExtension(DamahExtns.X_DAMAH_CREATED, true);
-					String use=null;
-					
-					boolean nameSpecified=false;
-					if(extensions!=null)
+					Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);//just the type name
+					if(xDamahParamRef!=null && xDamahParamRef instanceof String)
 					{
+						//since this is to be a ref we dont need to create
+						//it will only be in schemas/
 						
-						Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
-						if(xDamahParamType!=null && xDamahParamType instanceof String)
-						{
-							use=(String) xDamahParamType;
-							nameSpecified=true;
-							xDamahParamMap.put(use, parameters2);
-							
-						}
-						
-					}
-					if(use==null && operationId!=null)
-					{
-						String  operationIdTrimmed=operationId.trim();
-						int operationIdTrimmedLength = operationIdTrimmed.length();
-						if(operationIdTrimmedLength>0)
-						{
-							use=String.valueOf(Character.toUpperCase(operationIdTrimmed.charAt(0)));
-							if(operationIdTrimmedLength>1)
-							{
-								use+=operationIdTrimmed.substring(1);
-							}
-						}
-						
-					}
-					if(use==null)
-					{
-						use=pathToType(path, method);
-					}
-					if(!nameSpecified)
-					{
-						use="Params"+use;
-					}
-					Schema existingIfAny = this.openAPI.getComponents().getSchemas().get(use);
-					if(existingIfAny==null)
-					{
-						
-						this.openAPI.getComponents().addSchemas(use, objectSchema);
-						for (Parameter parameter : parameters2) {
-							
-							Schema schema = parameter.getSchema();
-							
-							objectSchema.addProperty(parameter.getName(), schema);
-						}
 					}
 					else
 					{
-						throw new RuntimeException("path= "+path+", method="+method.name()+" is trying to create already in use type of "+use);
+						//what to name as type
+						//if methodKeyset size is 1 need not use method name in typeName
+						//else typeName can be methodName+path/operationId+"Param"
+						//build the type looping through the params and add to schema
+						ObjectSchema objectSchema = new ObjectSchema();
+						objectSchema.addExtension(DamahExtns.X_DAMAH_CREATED, true);
+						String use=null;
+						
+						boolean nameSpecified=false;
+						if(extensions!=null)
+						{
+							
+							Object xDamahParamType = extensions.get(DamahExtns.X_DAMAH_PARAM_TYPE);
+							if(xDamahParamType!=null && xDamahParamType instanceof String)
+							{
+								use=(String) xDamahParamType;
+								nameSpecified=true;
+								xDamahParamMap.put(use, parameters2);
+								
+							}
+							
+						}
+						if(use==null && operationId!=null)
+						{
+							String  operationIdTrimmed=operationId.trim();
+							int operationIdTrimmedLength = operationIdTrimmed.length();
+							if(operationIdTrimmedLength>0)
+							{
+								use=String.valueOf(Character.toUpperCase(operationIdTrimmed.charAt(0)));
+								if(operationIdTrimmedLength>1)
+								{
+									use+=operationIdTrimmed.substring(1);
+								}
+							}
+							
+						}
+						if(use==null)
+						{
+							use=pathToType(path, method);
+						}
+						if(!nameSpecified)
+						{
+							use="Params"+use;
+						}
+						Schema existingIfAny = this.openAPI.getComponents().getSchemas().get(use);
+						if(existingIfAny==null)
+						{
+							
+							this.openAPI.getComponents().addSchemas(use, objectSchema);
+							for (Parameter parameter : parameters2) {
+								
+								Schema schema = parameter.getSchema();
+								
+								objectSchema.addProperty(parameter.getName(), schema);
+							}
+						}
+						else
+						{
+							throw new RuntimeException("path= "+path+", method="+method.name()+" is trying to create already in use type of "+use);
+						}
+						
 					}
-					
 				}
+				
 				
 			}
 			else
@@ -264,54 +268,58 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 			if(parameters2!=null && parameters2.size()>1)//only then we have to consider parameters as wrappers
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
-				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
+				if(extensions!=null)
 				{
-					//since this is to be a ref we didnt need to create earlier
-					//must validate here
-					String xDamahParamRefStr=(String) xDamahParamRef;
-					Schema o = this.openAPI.getComponents().getSchemas().get(xDamahParamRefStr);
-					if(o !=null)
+					Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
+					if(xDamahParamRef!=null && xDamahParamRef instanceof String)
 					{
-						if(o instanceof ObjectSchema)
+						//since this is to be a ref we didnt need to create earlier
+						//must validate here
+						String xDamahParamRefStr=(String) xDamahParamRef;
+						Schema o = this.openAPI.getComponents().getSchemas().get(xDamahParamRefStr);
+						if(o !=null)
 						{
-							ObjectSchema objectSchema=(ObjectSchema) o;
-							//we dont bother about additional properties
-							//we not considering maps
-							if(objectSchema.getProperties().size()==parameters2.size())
+							if(o instanceof ObjectSchema)
 							{
-								Map<String, Schema> properties = objectSchema.getProperties();
-								Set<String> propertiesKeySet = properties.keySet();
-								
-								for (Parameter parameter : parameters2) {
+								ObjectSchema objectSchema=(ObjectSchema) o;
+								//we dont bother about additional properties
+								//we not considering maps
+								if(objectSchema.getProperties().size()==parameters2.size())
+								{
+									Map<String, Schema> properties = objectSchema.getProperties();
+									Set<String> propertiesKeySet = properties.keySet();
 									
-									Schema schema = parameter.getSchema();
-									Schema schema2 = objectSchema.getProperties().get(parameter.getName());
-									//these two must be equal
-									//lets trust equals //for now
-									if(!schema.equals(schema2))
-									{
-										//during code generation better to break and protest
-										throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties. They should be same in all aspects.");
+									for (Parameter parameter : parameters2) {
+										
+										Schema schema = parameter.getSchema();
+										Schema schema2 = objectSchema.getProperties().get(parameter.getName());
+										//these two must be equal
+										//lets trust equals //for now
+										if(!schema.equals(schema2))
+										{
+											//during code generation better to break and protest
+											throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties. They should be same in all aspects.");
+										}
 									}
 								}
-							}
-							else
-							{
-								Map<String, Schema> properties = objectSchema.getProperties();
+								else
+								{
+									Map<String, Schema> properties = objectSchema.getProperties();
+									
+									throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties in size");
+								}
 								
-								throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" but actual parameters dont match the properties in size");
+								
 							}
-							
-							
 						}
+						else
+						{
+							throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" which is not defined");
+						}
+						
 					}
-					else
-					{
-						throw new RuntimeException("path= "+path+", method="+method.name()+" specified x-damah-param-ref="+xDamahParamRefStr+" which is not defined");
-					}
-					
 				}
+				
 					
 			
 				
@@ -319,18 +327,22 @@ private BiConsumer<PathItem, String> validateRefTypesForParamsIfNeeded=  (PathIt
 			else if(parameters2==null || parameters2.size()==0)//
 			{
 				Map<String, Object> extensions = operation.getExtensions();
-				Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
-				if(xDamahParamRef!=null && xDamahParamRef instanceof String)
+				if(extensions!=null)
 				{
-					String xDamahParamRefStr=(String) xDamahParamRef;
-					//since this is to be a ref we didnt need to create earlier
-					//must copy parametrs
+					Object xDamahParamRef = extensions.get(DamahExtns.X_DAMAH_PARAM_REF);
+					if(xDamahParamRef!=null && xDamahParamRef instanceof String)
+					{
+						String xDamahParamRefStr=(String) xDamahParamRef;
+						//since this is to be a ref we didnt need to create earlier
+						//must copy parametrs
 
-					
-					final List<Parameter> list = xDamahParamMap.get(xDamahParamRefStr);
-					operation.setParameters(list);
-					
+						
+						final List<Parameter> list = xDamahParamMap.get(xDamahParamRefStr);
+						operation.setParameters(list);
+						
+					}
 				}
+				
 			}
 			
 		}
