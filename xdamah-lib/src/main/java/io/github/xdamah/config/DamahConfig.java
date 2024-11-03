@@ -26,6 +26,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.xdamah.constants.DamahExtns;
 import io.github.xdamah.controller.DamahController;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -118,6 +119,34 @@ public class DamahConfig {
 		RequestMethod method = buildMethod(httpMethod);
 		boolean pathInUse = false;
 		boolean methodInUse = false;
+		boolean expectingXDamah=false;
+		Map<String, Object> extensions = operation.getExtensions();
+		if (extensions != null) {
+			String serviceInfo = (String) extensions.get(DamahExtns.X_DAMAH_SERVICE);
+			if(serviceInfo==null)
+			{
+				//unless xdamah is true no xdamah
+				Boolean xDahah = (Boolean) extensions.get(DamahExtns.X_DAMAH);
+				if(xDahah!=null && (xDahah.booleanValue()))
+				{
+					expectingXDamah=true;
+				}
+			}
+			else
+			{
+				//no need to look for xdaham but if we seexdamah=false its turned off
+				Boolean xDahah = (Boolean) extensions.get(DamahExtns.X_DAMAH);
+				if(xDahah!=null && (!xDahah.booleanValue()))
+				{
+					expectingXDamah=false;
+				}
+				else
+				{
+					expectingXDamah=true;
+				}
+			}
+			
+		}
 		Set<Entry<RequestMappingInfo, HandlerMethod>> requstMappingHandlerEntrySet = requestMappingHandlerMapping
 				.getHandlerMethods().entrySet();
 		for (Entry<RequestMappingInfo, HandlerMethod> entry : requstMappingHandlerEntrySet) {
@@ -184,38 +213,44 @@ public class DamahConfig {
 				producesTypesArray = buildContentTypes(content);
 			}
 		}
+		
+		if(expectingXDamah)
+		{
+			Builder builder = RequestMappingInfo.paths(path).methods(method);
+			if (consumesTypesArray != null) {
+				builder = builder.produces(consumesTypesArray);
+			}
+			if (producesTypesArray != null) {
+				builder = builder.produces(producesTypesArray);
+			}
 
-		Builder builder = RequestMappingInfo.paths(path).methods(method);
-		if (consumesTypesArray != null) {
-			builder = builder.produces(consumesTypesArray);
+			RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
+			options.setPatternParser(new PathPatternParser());
+
+			builder = builder.options(options);
+
+			RequestMappingInfo requestMappingInfo = builder.build();
+
+			DamahController damahController = new DamahController();
+			damahController.setOpenApi(this.openApi);
+			damahController.setPath(path);
+			damahController.setHttpMethod(httpMethod);
+
+			damahController.setOperation(operation);
+			damahController.setPathItem(pathItem);
+			damahController.setWebHook(isWebHook);
+			damahController.setModelPackageUtil(modelPackageUtil);
+			damahController.setContext(context);
+			damahController.setConversionService(conversionService);
+			damahController.setObjectMapper(objectMapper);
+			damahController.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
+
+			requestMappingHandlerMapping.registerMapping(requestMappingInfo, damahController, this.handlerMethod);
+	
 		}
-		if (producesTypesArray != null) {
-			builder = builder.produces(producesTypesArray);
-		}
+		
 
-		RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
-		options.setPatternParser(new PathPatternParser());
-
-		builder = builder.options(options);
-
-		RequestMappingInfo requestMappingInfo = builder.build();
-
-		DamahController damahController = new DamahController();
-		damahController.setOpenApi(this.openApi);
-		damahController.setPath(path);
-		damahController.setHttpMethod(httpMethod);
-
-		damahController.setOperation(operation);
-		damahController.setPathItem(pathItem);
-		damahController.setWebHook(isWebHook);
-		damahController.setModelPackageUtil(modelPackageUtil);
-		damahController.setContext(context);
-		damahController.setConversionService(conversionService);
-		damahController.setObjectMapper(objectMapper);
-		damahController.setMappingJackson2XmlHttpMessageConverter(mappingJackson2XmlHttpMessageConverter);
-
-		requestMappingHandlerMapping.registerMapping(requestMappingInfo, damahController, this.handlerMethod);
-
+		
 	}
 
 	private String[] buildContentTypes(Content content) {

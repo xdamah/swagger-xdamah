@@ -1,0 +1,11 @@
+damah-lib\src\main\java\io\github\xdamah\config\DamahConfig.java
+
+setRequestMappingHandlerMapping() method
+
+this.handlerMethod
+
+readPathEntry()
+
+readOperation()
+
+if (pathInUse && methodInUse) {//see comemnst}
