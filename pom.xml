@@ -7,7 +7,8 @@
 	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<name>Swagger XDamah</name>
-	<description>A swagger code gen extension and Spring Boot extension that can eliminate controller code
+	<description>A swagger code gen extension and Spring Boot extension that can
+		eliminate controller code
 		in Spring Rest API development with some other additional features</description>
 	<url>https://github.com/xdamah/swagger-xdamah</url>
 	<licenses>
@@ -154,6 +155,15 @@
 								<goals>
 									<goal>jar</goal>
 								</goals>
+								<configuration>
+									<failOnError>false</failOnError>
+									<failOnWarning>false</failOnWarning>
+									<useStandardDoclet>true</useStandardDoclet>
+									<source>${maven.compiler.source}</source> <!--
+									Ensures the correct Java version -->
+									<additionalparam>-Xdoclint:none</additionalparam> <!--
+									Suppress doclint warnings -->
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
