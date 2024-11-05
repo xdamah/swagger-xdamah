@@ -157,12 +157,10 @@
 								</goals>
 								<configuration>
 									<failOnError>false</failOnError>
-									<failOnWarning>false</failOnWarning>
-									<useStandardDoclet>true</useStandardDoclet>
+									
 									<source>${maven.compiler.source}</source> <!--
 									Ensures the correct Java version -->
-									<additionalparam>-Xdoclint:none</additionalparam> <!--
-									Suppress doclint warnings -->
+									
 								</configuration>
 							</execution>
 						</executions>
